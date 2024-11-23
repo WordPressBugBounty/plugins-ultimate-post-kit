@@ -4,14 +4,14 @@
  * Plugin Name: Ultimate Post Kit
  * Plugin URI: https://bdthemes.com/ultimate-post-kit/
  * Description: <a href="https://bdthemes.com/ultimate-post-kit/">Ultimate Post Kit</a> is a packed of post related elementor widgets. This plugin gives you post related widget features for elementor page builder plugin.
- * Version: 3.12.13
+ * Version: 3.12.14
  * Author: BdThemes
  * Author URI: https://bdthemes.com/
  * Text Domain: ultimate-post-kit
  * Domain Path: /languages
  * License: GPL3
  * Elementor requires at least: 3.22
- * Elementor tested up to: 3.25.6
+ * Elementor tested up to: 3.25.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,8 +19,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Some pre define value for easy use
-define( 'BDTUPK_VER', '3.12.13' );
+define( 'BDTUPK_VER', '3.12.14' );
 define( 'BDTUPK__FILE__', __FILE__ );
+
+/**
+ * Loads translations
+ *
+ * @return void
+ */
+
+if ( ! function_exists( 'ultimate_post_kit_load_textdomain' ) ) {
+	function ultimate_post_kit_load_textdomain() {
+		load_plugin_textdomain( 'ultimate-post-kit', false, basename( dirname( __FILE__ ) ) . '/languages' );
+	}
+	add_action( 'init', 'ultimate_post_kit_load_textdomain' );
+}
 
 
 if ( ! function_exists( '_is_upk_pro_installed' ) ) {
@@ -80,7 +93,6 @@ require_once ( BDTUPK_INC_PATH . 'ultimate-post-kit-filters.php' );
  * Also loaded the language file from here
  */
 function ultimate_post_kit_load_plugin() {
-	load_plugin_textdomain( 'ultimate-post-kit', false, basename( dirname( __FILE__ ) ) . '/languages' );
 
 	if ( ! did_action( 'elementor/loaded' ) ) {
 		add_action( 'admin_notices', 'ultimate_post_kit_fail_load' );
@@ -191,9 +203,6 @@ if ( ! function_exists( 'dci_plugin_ultimate_post_kit' ) ) {
 			'is_premium'          => true,
 			'popup_notice'        => false,
 			'deactivate_feedback' => true,
-			'delay_time'          => [ 
-				'time' => 3 * DAY_IN_SECONDS,
-			],
 			'plugin_msg'          => '<p>Be Top-contributor by sharing non-sensitive plugin data and create an impact to the global WordPress community today! You can receive valuable emails periodically.</p>',
 		) );
 
