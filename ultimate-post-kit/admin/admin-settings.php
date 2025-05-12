@@ -72,7 +72,12 @@ class UltimatePostKit_Admin_Settings {
         if (class_exists('Elementor\Modules\Usage\Module')) {
 
             $module     = Module::instance();
-            $elements   = $module->get_formatted_usage('raw');
+            
+            $old_error_level = error_reporting();
+ 			error_reporting(E_ALL & ~E_WARNING); // Suppress warnings
+ 			$elements = $module->get_formatted_usage('raw');
+ 			error_reporting($old_error_level); // Restore
+            
             $upk_widgets = self::get_upk_widgets_names();
 
             if (is_array($elements) || is_object($elements)) {
@@ -110,7 +115,12 @@ class UltimatePostKit_Admin_Settings {
         if (class_exists('Elementor\Modules\Usage\Module')) {
 
             $module     = Module::instance();
-            $elements   = $module->get_formatted_usage('raw');
+            
+            $old_error_level = error_reporting();
+ 			error_reporting(E_ALL & ~E_WARNING); // Suppress warnings
+ 			$elements = $module->get_formatted_usage('raw');
+ 			error_reporting($old_error_level); // Restore
+            
             $upk_widgets = self::get_upk_only_widgets();
 
             if (is_array($elements) || is_object($elements)) {
@@ -1238,9 +1248,15 @@ class UltimatePostKit_Admin_Settings {
                     }
                 }
 
-                jQuery(window).on('load', function() {
+                function onWindowLoad() {
                     hashHandler();
-                });
+                }
+
+                if (document.readyState === 'complete') {
+					onWindowLoad();
+				} else {
+					jQuery(window).on('load', onWindowLoad);
+				}
 
                 window.addEventListener("hashchange", hashHandler, true);
 
@@ -1249,7 +1265,7 @@ class UltimatePostKit_Admin_Settings {
                     jQuery(this).parent().addClass('current');
                 });
 
-                jQuery('#ultimate_post_kit_active_modules_page a.upk-active-all-widget').click(function(e) {
+                jQuery('#ultimate_post_kit_active_modules_page a.upk-active-all-widget').on('click', function(e) {
                     e.preventDefault();
 
                     jQuery('#ultimate_post_kit_active_modules_page .upk-option-item:not(.upk-pro-inactive) .checkbox:visible').each(function() {
@@ -1260,7 +1276,7 @@ class UltimatePostKit_Admin_Settings {
                     jQuery('a.upk-deactive-all-widget').removeClass('bdt-active');
                 });
 
-                jQuery('#ultimate_post_kit_active_modules_page a.upk-deactive-all-widget').click(function(e) {
+                jQuery('#ultimate_post_kit_active_modules_page a.upk-deactive-all-widget').on('click', function(e) {
                     e.preventDefault();
                     jQuery('#ultimate_post_kit_active_modules_page .upk-option-item:not(.upk-pro-inactive) .checkbox:visible').each(function() {
                         jQuery(this).removeAttr('checked');
@@ -1270,7 +1286,7 @@ class UltimatePostKit_Admin_Settings {
                     jQuery('a.upk-active-all-widget').removeClass('bdt-active');
                 });
 
-                jQuery('#ultimate_post_kit_elementor_extend_page a.upk-active-all-widget').click(function(e) {
+                jQuery('#ultimate_post_kit_elementor_extend_page a.upk-active-all-widget').on('click', function(e) {
                     e.preventDefault();
 
                     jQuery('#ultimate_post_kit_elementor_extend_page .checkbox:visible').each(function() {
@@ -1281,7 +1297,7 @@ class UltimatePostKit_Admin_Settings {
                     jQuery('a.upk-deactive-all-widget').removeClass('bdt-active');
                 });
 
-                jQuery('#ultimate_post_kit_elementor_extend_page a.upk-deactive-all-widget').click(function(e) {
+                jQuery('#ultimate_post_kit_elementor_extend_page a.upk-deactive-all-widget').on('click', function(e) {
                     e.preventDefault();
                     jQuery('#ultimate_post_kit_elementor_extend_page .checkbox:visible').each(function() {
                         jQuery(this).removeAttr('checked');
@@ -1291,7 +1307,7 @@ class UltimatePostKit_Admin_Settings {
                     jQuery('a.upk-active-all-widget').removeClass('bdt-active');
                 });
 
-                jQuery('form.settings-save').submit(function(event) {
+                jQuery('form.settings-save').on('submit', function(event) {
                     event.preventDefault();
 
                     bdtUIkit.notification({
