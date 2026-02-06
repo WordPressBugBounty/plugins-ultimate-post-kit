@@ -97,18 +97,18 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_responsive_control(
 			'columns',
 			[
-				'label'          => __('Columns', 'ultimate-post-kit'),
+				'label'          => esc_html__('Columns', 'ultimate-post-kit'),
 				'type'           => Controls_Manager::SELECT,
 				'default'        => 3,
 				'tablet_default' => 2,
 				'mobile_default' => 1,
 				'options'        => [
-					1 => '1',
-					2 => '2',
-					3 => '3',
-					4 => '4',
-					5 => '5',
-					6 => '6',
+					1 => esc_html__('1', 'ultimate-post-kit'),
+					2 => esc_html__('2', 'ultimate-post-kit'),
+					3 => esc_html__('3', 'ultimate-post-kit'),
+					4 => esc_html__('4', 'ultimate-post-kit'),
+					5 => esc_html__('5', 'ultimate-post-kit'),
+					6 => esc_html__('6', 'ultimate-post-kit'),
 				],
 			]
 		);
@@ -116,7 +116,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_responsive_control(
 			'item_gap',
 			[
-				'label'   => __('Item Gap', 'ultimate-post-kit'),
+				'label'   => esc_html__('Item Gap', 'ultimate-post-kit'),
 				'type'    => Controls_Manager::SLIDER,
 				'default' => [
 					'size' => 20,
@@ -168,7 +168,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->start_controls_section(
 			'section_post_query_builder',
 			[
-				'label' => __('Query', 'ultimate-post-kit') . BDTUPK_NC,
+				'label' => esc_html__('Query', 'ultimate-post-kit'),
 				'tab'   => Controls_Manager::TAB_CONTENT,
 			]
 		);
@@ -197,7 +197,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->start_controls_section(
 			'section_content_additional',
 			[
-				'label' => esc_html__('Additional', 'ultimate-post-kit'),
+				'label' => esc_html__('Additional Options', 'ultimate-post-kit'),
 			]
 		);
 
@@ -218,7 +218,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_control(
 			'meta_separator',
 			[
-				'label'       => __('Separator', 'ultimate-post-kit') . BDTUPK_NC,
+				'label'       => esc_html__('Separator', 'ultimate-post-kit'),
 				'type'        => Controls_Manager::TEXT,
 				'default'     => '|',
 				'label_block' => false,
@@ -260,7 +260,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_control(
 			'item_match_height',
 			[
-				'label'        => __('Item Match Height', 'ultimate-post-kit'),
+				'label'        => esc_html__('Item Match Height', 'ultimate-post-kit'),
 				'type'         => Controls_Manager::SWITCHER,
 				'default'      => 'yes',
 				'prefix_class' => 'upk-item-match-height--',
@@ -272,7 +272,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_control(
 			'meta_end_position',
 			[
-				'label'   => esc_html__('Meta End Position', 'ultimate-post-kit') . BDTUPK_NC,
+				'label'   => esc_html__('Meta End Position', 'ultimate-post-kit'),
 				'type'    => Controls_Manager::SWITCHER,
 				'prefix_class' => 'upk-meta-end-position--',
 				'condition' => [
@@ -284,7 +284,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_control(
 			'show_post_format',
 			[
-				'label'   => esc_html__('Post Format', 'ultimate-post-kit') . BDTUPK_NC,
+				'label'   => esc_html__('Post Format', 'ultimate-post-kit'),
 				'type'    => Controls_Manager::SWITCHER,
 				'separator' => 'before'
 			]
@@ -293,10 +293,10 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_control(
 			'global_link',
 			[
-				'label'        => __('Item Wrapper Link', 'ultimate-post-kit'),
+				'label'        => esc_html__('Item Wrapper Link', 'ultimate-post-kit'),
 				'type'         => Controls_Manager::SWITCHER,
 				'prefix_class' => 'upk-global-link-',
-				'description'  => __('Be aware! When Item Wrapper Link activated then title link and read more link will not work', 'ultimate-post-kit'),
+				'description'  => esc_html__('Be aware! When Item Wrapper Link activated then title link and read more link will not work', 'ultimate-post-kit'),
 				'separator' => 'before',
 			]
 		);
@@ -306,7 +306,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->start_controls_section(
 			'section_content_readmore',
 			[
-				'label' => esc_html__('Read More', 'ultimate-post-kit') . BDTUPK_NC,
+				'label' => esc_html__('Read More', 'ultimate-post-kit'),
 				'condition'   => [
 					'readmore_type' => 'classic',
 				],
@@ -318,6 +318,7 @@ class Alter_Carousel extends Group_Control_Query
 			[
 				'label'       => esc_html__('Read More Text', 'ultimate-post-kit'),
 				'type'        => Controls_Manager::TEXT,
+				'dynamic'     => [ 'active' => true ],
 				'default'     => esc_html__('Read More', 'ultimate-post-kit'),
 				'placeholder' => esc_html__('Read More', 'ultimate-post-kit'),
 			]
@@ -396,7 +397,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_responsive_control(
 			'content_padding',
 			[
-				'label' 	 => __('Content Padding', 'ultimate-post-kit'),
+				'label' 	 => esc_html__('Content Padding', 'ultimate-post-kit'),
 				'type' 		 => Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -426,7 +427,7 @@ class Alter_Carousel extends Group_Control_Query
 			Group_Control_Border::get_type(),
 			[
 				'name'        => 'item_border',
-				'label'       => __('Border', 'ultimate-post-kit'),
+				'label'       => esc_html__('Border', 'ultimate-post-kit'),
 				'placeholder' => '1px',
 				'default'     => '1px',
 				'selector'    => '{{WRAPPER}} .upk-alter-carousel .upk-item',
@@ -495,8 +496,8 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_responsive_control(
 			'item_shadow_padding',
 			[
-				'label'       => __('Match Padding', 'ultimate-post-kit'),
-				'description' => __('You have to add padding for matching overlaping normal/hover box shadow when you used Box Shadow option.', 'ultimate-post-kit'),
+				'label'       => esc_html__('Match Padding', 'ultimate-post-kit'),
+				'description' => esc_html__('You have to add padding for matching overlaping normal/hover box shadow when you used Box Shadow option.', 'ultimate-post-kit'),
 				'type'        => Controls_Manager::SLIDER,
 				'range'       => [
 					'px' => [
@@ -617,7 +618,7 @@ class Alter_Carousel extends Group_Control_Query
 			Group_Control_Text_Shadow::get_type(),
 			[
 				'name'      => 'title_text_shadow',
-				'label'     => __('Text Shadow', 'ultimate-post-kit'),
+				'label'     => esc_html__('Text Shadow', 'ultimate-post-kit'),
 				'selector'  => '{{WRAPPER}} .upk-alter-carousel .upk-title a',
 				'condition' => [
 					'title_advanced_style' => 'yes'
@@ -639,7 +640,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_responsive_control(
 			'title_border_radius',
 			[
-				'label'		 => __('Border Radius', 'ultimate-post-kit'),
+				'label'		 => esc_html__('Border Radius', 'ultimate-post-kit'),
 				'type' 		 => Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', '%'],
 				'selectors'  => [
@@ -665,7 +666,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_responsive_control(
 			'title_text_padding',
 			[
-				'label' 	 => __('Padding', 'ultimate-post-kit'),
+				'label' 	 => esc_html__('Padding', 'ultimate-post-kit'),
 				'type' 		 => Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -713,7 +714,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->add_responsive_control(
 			'text_margin',
 			[
-				'label' 	 => __('Margin', 'ultimate-post-kit'),
+				'label' 	 => esc_html__('Margin', 'ultimate-post-kit'),
 				'type' 		 => Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -981,7 +982,7 @@ class Alter_Carousel extends Group_Control_Query
 		$this->start_controls_section(
 			'section_style_post_format',
 			[
-				'label'     => esc_html__('Post Format', 'ultimate-post-kit') . BDTUPK_NC,
+				'label'     => esc_html__('Post Format', 'ultimate-post-kit'),
 				'tab'       => Controls_Manager::TAB_STYLE,
 				'condition' => [
 					'show_post_format' => 'yes',
@@ -1138,9 +1139,10 @@ class Alter_Carousel extends Group_Control_Query
 	{
 
 		$default = $this->getGroupControlQueryArgs();
+		$args = [];
 		if ($posts_per_page) {
 			$args['posts_per_page'] = $posts_per_page;
-			$args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
+			// $args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
 		}
 		$args         = array_merge($default, $args);
 		$this->_query = new WP_Query($args);
@@ -1154,7 +1156,7 @@ class Alter_Carousel extends Group_Control_Query
 ?>
 		<div <?php $this->print_render_attribute_string('carousel'); ?>>
 			<div class="upk-post-grid">
-				<div <?php echo $this->get_render_attribute_string('swiper'); ?>>
+				<div <?php $this->print_render_attribute_string('swiper'); ?>>
 					<div class="swiper-wrapper">
 					<?php
 				}
@@ -1206,12 +1208,15 @@ class Alter_Carousel extends Group_Control_Query
 											<div class="upk-meta">
 												<?php if ($settings['show_author']) : ?>
 													<div class="upk-blog-author" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-														<a class="author-name" href="<?php echo esc_url( get_author_posts_url(get_the_author_meta('ID')) ); ?>">
+														<a 
+															class="author-name" 
+															href="<?php echo esc_url( get_author_posts_url(get_the_author_meta('ID')) ); ?>" 
+															aria-label="<?php echo esc_attr( 'View all posts by ' . get_the_author() ); ?>"
+														>
 															<?php echo esc_html( get_the_author() ) ?>
 														</a>
 													</div>
-												<?php endif; ?>
-
+												<?php endif; ?>							
 												<?php if ('yes' === $settings['show_date']) : ?>
 													<div data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
 														<?php $this->render_date(); ?>
@@ -1221,7 +1226,7 @@ class Alter_Carousel extends Group_Control_Query
 												<?php if (_is_upk_pro_activated()) :
 													if ('yes' === $settings['show_reading_time']) : ?>
 														<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-															<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'] ) ); ?>
+															<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no' ) ); ?>
 														</div>
 													<?php endif; ?>
 												<?php endif; ?>

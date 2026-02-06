@@ -799,7 +799,7 @@ if (!class_exists('UltimatePostKit_Settings_API')) :
 			$all_sections = $this->get_all_sections();
 
 			foreach ($all_sections as $tab) {
-				$icon = isset($tab['icon']) ? $tab['icon'] : 'dashicons dashicons-admin-generic';
+				$icon = isset($tab['icon']) ? $tab['icon'] : 'dashicons dashicons-screenoptions';
 				$html .= sprintf('<li><a href="#%1$s" class="bdt-tab-item" id="bdt-%1$s" data-tab-index="%2$s"><i class="%4$s"></i>%3$s</a></li>', $tab['id'], $count++, $tab['title'], $icon);
 			}
 
@@ -881,17 +881,20 @@ if (!class_exists('UltimatePostKit_Settings_API')) :
 					'title' => esc_html__('Other Plugins', 'ultimate-post-kit'),
 					'icon' => 'dashicons dashicons-admin-plugins',
 				],
-				[
-					'id' => 'ultimate_post_kit_affiliate',
-					'title' => esc_html__('Get Up to 60%', 'ultimate-post-kit'),
-					'icon' => 'dashicons dashicons-money-alt',
-				],
-				[
-					'id' => 'ultimate_post_kit_rollback_version',
-					'title' => esc_html__('Rollback Version', 'ultimate-post-kit'),
-					'icon' => 'dashicons dashicons-update',
-				],
+				// [
+				// 	'id' => 'ultimate_post_kit_affiliate',
+				// 	'title' => esc_html__('Get Up to 60%', 'ultimate-post-kit'),
+				// 	'icon' => 'dashicons dashicons-money-alt',
+				// ],
 			];
+
+            if (true == _is_upk_pro_activated()) {
+                $content_only_sections[] = [
+                    'id' => 'ultimate_post_kit_rollback_version',
+                    'title' => esc_html__('Rollback Version', 'ultimate-post-kit'),
+                    'icon' => 'dashicons dashicons-update',
+                ];
+            }
 			
 			// Check if each content section exists in settings sections, if not add it
 			foreach ($content_only_sections as $content_section) {

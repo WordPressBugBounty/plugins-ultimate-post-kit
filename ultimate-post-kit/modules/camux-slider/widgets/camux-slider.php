@@ -1372,9 +1372,10 @@ class Camux_Slider extends Group_Control_Query {
 	public function query_posts($posts_per_page) {
 
 		$default = $this->getGroupControlQueryArgs();
+		$args = [];
 		if ($posts_per_page) {
 			$args['posts_per_page'] = $posts_per_page;
-			$args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
+			// $args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
 		}
 		$args         = array_merge($default, $args);
 		$this->_query = new WP_Query($args);
@@ -1451,8 +1452,8 @@ class Camux_Slider extends Group_Control_Query {
 		$this->add_render_attribute('swiper', 'class', 'swiper-carousel swiper');
 
 	?>
-		<div <?php echo $this->get_render_attribute_string('camux-slider'); ?>>
-			<div <?php echo $this->get_render_attribute_string('swiper'); ?>>
+		<div <?php $this->print_render_attribute_string('camux-slider'); ?>>
+			<div <?php $this->print_render_attribute_string('swiper'); ?>>
 				<div class="swiper-wrapper">
 				<?php
 			}
@@ -1485,7 +1486,7 @@ class Camux_Slider extends Group_Control_Query {
 				$this->add_render_attribute('slider-item', 'class', 'upk-item swiper-slide', true);
 
 	?>
-		<div <?php echo $this->get_render_attribute_string('slider-item'); ?>>
+		<div <?php $this->print_render_attribute_string('slider-item'); ?>>
 			<div class="upk-img-wrap">
 				<?php $this->render_image(get_post_thumbnail_id($post_id), $image_size); ?>
 			</div>
@@ -1523,7 +1524,7 @@ class Camux_Slider extends Group_Control_Query {
 						<?php if (_is_upk_pro_activated()) :
 							if ('yes' === $settings['show_reading_time']) : ?>
 								<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-									<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'] ) ); ?>
+								<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no' ) ); ?>
 								</div>
 							<?php endif; ?>
 						<?php endif; ?>
@@ -1541,7 +1542,7 @@ class Camux_Slider extends Group_Control_Query {
 				$this->add_render_attribute('thumb-item', 'class', 'upk-item swiper-slide', true);
 
 	?>
-		<div <?php echo $this->get_render_attribute_string('thumb-item'); ?>>
+		<div <?php $this->print_render_attribute_string('thumb-item'); ?>>
 			<div class="upk-img-wrap">
 				<?php $this->render_image(get_post_thumbnail_id($post_id), $image_size); ?>
 			</div>
@@ -1579,7 +1580,7 @@ class Camux_Slider extends Group_Control_Query {
 				$this->render_footer();
 
 			?>
-			<div thumbsSlider="" <?php echo $this->get_render_attribute_string('swiper-thumbs'); ?>>
+			<div thumbsSlider="" <?php $this->print_render_attribute_string('swiper-thumbs'); ?>>
 				<div class="swiper-wrapper">
 					<?php
 

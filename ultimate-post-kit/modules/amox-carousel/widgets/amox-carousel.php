@@ -831,9 +831,10 @@ class Amox_Carousel extends Group_Control_Query
 	{
 
 		$default = $this->getGroupControlQueryArgs();
+		$args = [];
 		if ($posts_per_page) {
 			$args['posts_per_page'] = $posts_per_page;
-			$args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
+			// $args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
 		}
 		$args         = array_merge($default, $args);
 		$this->_query = new WP_Query($args);
@@ -863,7 +864,7 @@ class Amox_Carousel extends Group_Control_Query
 	?>
 		<div <?php $this->print_render_attribute_string('carousel'); ?>>
 			<div class="upk-post-wrapper">
-				<div <?php echo $this->get_render_attribute_string('swiper'); ?>>
+				<div <?php $this->print_render_attribute_string('swiper'); ?>>
 					<div class="swiper-wrapper">
 					<?php
 				}
@@ -894,7 +895,7 @@ class Amox_Carousel extends Group_Control_Query
 									<?php if (_is_upk_pro_activated()) :
 										if ('yes' === $settings['show_reading_time']) : ?>
 											<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-												<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'] ) ); ?>
+												<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no' ) ); ?>
 											</div>
 										<?php endif; ?>
 									<?php endif; ?>

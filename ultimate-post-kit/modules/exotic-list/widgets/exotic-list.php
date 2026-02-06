@@ -140,7 +140,7 @@
 			$this->start_controls_section(
 				'section_post_query_builder',
 				[
-					'label' => __( 'Query', 'ultimate-post-kit' ) . BDTUPK_NC,
+					'label' => __( 'Query', 'ultimate-post-kit' ),
 					'tab'   => Controls_Manager::TAB_CONTENT,
 				]
 			);
@@ -169,7 +169,7 @@
 			$this->start_controls_section(
 				'section_content_additional',
 				[
-					'label' => esc_html__( 'Additional', 'ultimate-post-kit' ),
+					'label' => esc_html__( 'Additional Options', 'ultimate-post-kit' ),
 				]
 			);
 			
@@ -210,6 +210,21 @@
 					'type'        => Controls_Manager::TEXT,
 					'default'     => '//',
 					'label_block' => false,
+					'conditions'  => [
+						'relation' => 'or',
+						'terms'    => [
+							[
+								'name'     => 'show_category',
+								'operator' => '===',
+								'value'    => 'yes',
+							],
+							[
+								'name'     => 'show_author',
+								'operator' => '===',
+								'value'    => 'yes',
+							],
+						],
+					],
 				]
 			);
 			
@@ -816,7 +831,7 @@
 								<?php if (_is_upk_pro_activated()) :
 									if ('yes' === $settings['show_reading_time']) : ?>
 										<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-											<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'] ) ); ?>
+											<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no' ) ); ?>
 										</div>
 									<?php endif; ?>
 								<?php endif; ?>

@@ -162,6 +162,7 @@ class Banner extends Group_Control_Query
 			[
 				'label'       => __('Image', 'ultimate-post-kit'),
 				'type'        => Controls_Manager::MEDIA,
+				'dynamic'     => ['active' => true],
 				'default'     => [
 					'url' => Utils::get_placeholder_image_src(),
 				],
@@ -621,6 +622,7 @@ class Banner extends Group_Control_Query
 			[
 				'label'       => esc_html__( 'Read More Text', 'ultimate-post-kit' ),
 				'type'        => Controls_Manager::TEXT,
+				'dynamic'     => [ 'active' => true ],
 				'default'     => esc_html__( 'Read More', 'ultimate-post-kit' ),
 				'placeholder' => esc_html__( 'Read More', 'ultimate-post-kit' ),
 			]
@@ -1428,7 +1430,7 @@ class Banner extends Group_Control_Query
         ?>
         <?php if (( ! empty( $settings['readmore_link']['url'] )) && ( $settings['readmore'] )): ?>
             <div class="upk-buy-btn">
-                <a <?php echo $this->get_render_attribute_string( 'readmore-link' ); ?>>
+                <a <?php $this->print_render_attribute_string( 'readmore-link' ); ?>>
                     <?php echo esc_html($settings['readmore_text']); ?>
                     <?php if ($settings['readmore_icon']['value']) : ?>
                         <span class="upk-button-icon-align-<?php echo esc_attr($settings['icon_align']); ?>">
@@ -1492,7 +1494,7 @@ class Banner extends Group_Control_Query
 		$this->add_render_attribute('upk-banner', 'class', ['upk-banner-wrap ', 'upk-sale-badge-' . $settings['sale_badge_direction'], 'upk-size-badge-' . $settings['size_badge_direction'], 'upk-banner-' . $settings['layout_direction'] . '']);
 
 		?>
-		<div <?php echo $this->get_render_attribute_string('upk-banner'); ?>>
+		<div <?php $this->print_render_attribute_string('upk-banner'); ?>>
 			<div class="upk-item">
 				<?php $this->render_banner_content(); ?>
 			</div>

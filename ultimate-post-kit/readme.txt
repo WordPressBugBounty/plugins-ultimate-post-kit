@@ -1,23 +1,24 @@
 === Ultimate Post Kit Addons for Elementor ===
-Contributors: bdthemes, selimmw, mohammaadfarid, abutalib, maudud, sohanurrahman, rakibulpk, muhammadasik, tauhidalam, syedfarhanreza
+Contributors: bdthemes, selimmw, mohammaadfarid, abutalib, maudud, sohanurrahman, rakibulpk, muhammadasik, tauhidalam, syedfarhanreza, shmusuf, arafatakashakku, shaikatazim, shamim496
 Donate link: http://bdthemes.com/
-Tags: elementor, posts, post grid, post carousel, post archive
-Stable tag: 4.0.2
+Tags: elementor, posts, post grid, post carousel, elementor addons
+Stable tag: 4.1.0
 Requires at least: 5.0.0
 Requires PHP: 7.0.0
-Tested up to: 6.8.2
+Tested up to: 6.9
 License: GPL3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
-Elementor requires at least: 3.22
-Elementor tested up to: 3.32.3
+Elementor requires at least: 3.28
+Elementor tested up to: 3.34.4
 
-Best Post Addon for Elementor WordPress Plugin with 100+ Most Popular Elements that need your everyday blog website building.
+Build your blogs and news sites with a feature-rich Elementor addon, offering 100+ elements for engaging layouts.
 
 == Description ==
 
-Ultimate Post Kit for Elementor is the ultimate addon for bloggers, marketers, and content creators who want stunning blog layouts without coding. Packed with unique widgets, sliders, and SEO-friendly designs, it helps you showcase posts in a fresh and modern way.
+Ultimate Post Kit for Elementor is an usefull addon for bloggers, marketers, and content creators who want stunning blog layouts without coding. Packed with unique widgets, sliders, and SEO-friendly designs, it helps you showcase posts in a fresh and modern way.
 
 Built with clean, optimized code, it’s fully compatible with the latest WordPress standards and won’t slow down your site. Whether you’re a beginner or pro, you can design beautiful, traffic-ready blogs in minutes using Elementor’s drag-and-drop editor.
+
 
 Ultimate Post Kit also supports RTL and multiple languages, making it ready for a global audience.
 
@@ -212,7 +213,7 @@ Feel free to [Contact us](https://bdthemes.com/support/) 💌 or check our widge
 
 == Check out our other Addons 👑 ==
 
-Explore the best free addons for Elementor and Gutenberg to boost your site with advanced blocks, sliders and eCommerce tools.
+Explore more free addons for Elementor and Gutenberg to boost your site with advanced blocks, sliders and eCommerce tools.
 
 * **[ZoloBlocks](https://wordpress.org/plugins/zoloblocks/)** 🆕☀️ - Mind-blowing dynamic block plugin for Gutenberg with powerful and advanced features offering greater web design experience.
 
@@ -246,6 +247,109 @@ https://youtu.be/zNeoRz94cPw?si=fOqZWKvcSEHSSKSp
 
 
 == Changelog ==
+
+= 4.1.0 [1st February 2026] =
+
+* Added: WPML multi language support added
+* Fixed: Minute and Second display issues across all widgets
+* Fixed: Hide seconds & minutes issues for ajax load more
+
+= 4.0.23 [27th January 2026] =
+
+* Added: Hide minute and second option for reading time in all widget ( Thanks to Iqbal Khan )
+* Fixed: Pagination issue fixed for builder ( Thanks to Kent )
+* Fixed: Shwo/Hide image issue fixed in the oras timeline widget
+* Fixed: Undefined variable and array_merge fatal error fixed in all widgets with query_posts method
+
+= 4.0.22 [12th January 2026] =
+
+* Updated: Security Improved
+* Updated: Plugin cache manager optimized by removing unused admin interface components
+
+= 4.0.21 [5th January 2026] =
+
+* Fixed: Css conflict issue fixed ( Thanks to Pixelwars )
+
+= 4.0.20 [1st January 2026] =
+
+* Fixed: Human diff time issue fixed
+
+= 4.0.19 [24th December 2025] =
+
+* Fixed: Time short format issue fixed in gratis grid widget
+
+= 4.0.18 [18th December 2025] =
+
+* Fixed: Corrected the conditional logic for displaying the separator between category, author, and reading time in the exotic widget
+
+= 4.0.17 [11th December 2025] =
+
+* Fixed: Others plugin issue fixed in Setup Wizard & Admin Dashboard
+* Updated: Template path updated
+* Updated: Security improved
+
+= 4.0.16 [4th December 2025] =
+
+* Fixed: Security vulnerability fixed in AJAX load more endpoints
+
+= 4.0.15 [2nd December 2025] =
+
+* Updated: Made compatible with WordPress version 6.9
+* Updated: Added aria-label attribute to links for better accessibility
+
+= 4.0.14 [26th November 2025] =
+
+* Added: Dynamic tag support provided
+* Fixed: Show/Hide author name issue fixed in skide slider widget
+
+= 4.0.13 [20th November 2025] =
+
+* Fixed: Notice duplicate issue fixed
+
+= 4.0.12 [18th November 2025] =
+
+* Fixed: Rollback Security checking issue fixed
+
+= 4.0.11 [18th November 2025] =
+
+* Improved: Added aria-label attribute to links for better accessibility
+
+= 4.0.10 [13th November 2025] =
+
+* Updated: Notice design improved
+
+= 4.0.9 [11th November 2025] =
+
+* Fixed: API Banner duplicate issue fixed
+
+= 4.0.8 [10th November 2025] =
+
+* Updated: System improved
+
+= 4.0.7 [10th November 2025] =
+
+* Fixed: Error fixed
+
+= 4.0.6 [10th November 2025] =
+
+* Added: Ajax Load More feature added in fanel list, buzz list, featured list and harold list widgets
+
+= 4.0.5 [6th November 2025] =
+
+* Added: Ajax Load More feature added in tiny list and scott list widget
+
+= 4.0.4 [30th October 2025] =
+
+* Added: White label logo update feature added
+* Fixed: HTML tag validation issue fixed
+
+= 4.0.3 [16th October 2025] =
+
+* Added: Ajax Load More feature added in ramble grid, amox grid widgets
+* Fixed: Pagination issue fixed in Alice Carousel widget
+* Fixed: Pagination issue fixed in carousel-type widgets
+* Fixed: Conditional logic issue fixed in alex grid and alice grid widgets
+* Updated: Web accessibility enhanced for pagination Previous/Next links ( Thanks to Oktawia )
 
 = 4.0.2 [5th October 2025] =
 
@@ -508,6 +612,9 @@ Details [changelog here](https://feedback.bdthemes.com/announcements?category=ca
 
 - When we release a update version, then automatically you will get a notification on WordPress plugin manager, so you can update from there. Thereafter you want to update manually just knock us, we will send you update version via mail. You will get our ultimate post kit related all [knowledge base](https://bdthemes.com/all-knowledge-base-of-ultimate-post-kit/) from our [bdthemes](https://bdthemes.com/knowledge-base/) website.
 
+###  How can I report security bugs?
+
+-  You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/9e5fb868-7544-4586-b365-636dc6104737)
 
 == Screenshots ==
 

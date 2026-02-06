@@ -147,7 +147,7 @@
   width: 300px;
 }
 .ultimate-post-kit-dashboard.wrap .upk-dashboard-header .upk-logo img {
-  width: 202px;
+  height: 48px;
 }
 .ultimate-post-kit-dashboard.wrap .upk-dashboard-header .upk-dashboard-nav-title h3 {
   font-size: 20px;
@@ -2202,6 +2202,8 @@
 .ultimate-post-kit-dashboard .ultimate-post-kit-custom-code-save-btn,
 .ultimate-post-kit-dashboard .ultimate-post-kit-custom-code-reset-btn {
   padding: 3px 30px;
+  line-height: 40px;
+  font-size: 16px;
   color: #fff;
   background: linear-gradient(to left, #00A85C, #58D34D);
   border: 0;
@@ -2210,15 +2212,17 @@
 .ultimate-post-kit-dashboard .ultimate-post-kit-custom-code-save-btn {
   margin-left: 12px;
 }
+.ultimate-post-kit-dashboard .ultimate-post-kit-custom-code-save-btn:hover {
+  background: linear-gradient(to left, #58D34D, #00A85C);
+}
 .ultimate-post-kit-dashboard .ultimate-post-kit-custom-code-reset-btn,
 .ultimate-post-kit-dashboard .ultimate-post-kit-white-label-save-btn {
-  background: #ffcdd9;
-  color: #EF476F;
+  background: linear-gradient(to left, #fa6336, #ff3c3c);
+  color: #fff;
 }
 .ultimate-post-kit-dashboard .ultimate-post-kit-custom-code-reset-btn:hover,
 .ultimate-post-kit-dashboard .ultimate-post-kit-white-label-save-btn:hover {
-  background: #EF476F;
-  color: #fff;
+  background: linear-gradient(to left, #ff3c3c, #fa6336);
 }
 .ultimate-post-kit-dashboard .upk-code-message,
 .ultimate-post-kit-dashboard .upk-white-label-message {

@@ -54,6 +54,14 @@ class Maple_Grid extends Group_Control_Query {
 		}
 	}
 
+	public function get_script_depends() {
+		if ($this->upk_is_edit_mode()) {
+			return ['upk-all-scripts'];
+		} else {
+			return ['upk-ajax-loadmore'];
+		}
+	}
+
 	public function get_custom_help_url() {
 		return 'https://youtu.be/teraPP36sgQ';
 	}
@@ -297,7 +305,7 @@ class Maple_Grid extends Group_Control_Query {
 		$this->start_controls_section(
 			'section_content_additional',
 			[
-				'label' => esc_html__('Additional', 'ultimate-post-kit'),
+				'label' => esc_html__('Additional Options', 'ultimate-post-kit'),
 			]
 		);
 
@@ -332,7 +340,7 @@ class Maple_Grid extends Group_Control_Query {
 		$this->add_control(
             'ellipsis',
             [
-                'label' => esc_html__('Ellipsis', 'ultimate-post-kit') . BDTUPK_NC,
+                'label' => esc_html__('Ellipsis', 'ultimate-post-kit'),
                 'type' => Controls_Manager::TEXT,
                 'condition' => [
                     'show_excerpt' => 'yes',
@@ -430,6 +438,9 @@ class Maple_Grid extends Group_Control_Query {
 				'separator' => 'before'
 			]
 		);
+
+		//Global Ajax Controls
+		$this->register_ajax_loadmore_controls();
 
 		$this->add_control(
 			'global_link',
@@ -1204,6 +1215,9 @@ class Maple_Grid extends Group_Control_Query {
 
 		//Global Pagination Controls
 		$this->register_pagination_controls();
+
+		//Global Ajax Loadmore Controls
+		$this->register_ajax_loadmore_style_controls();
 	}
 
 	/**
@@ -1213,6 +1227,7 @@ class Maple_Grid extends Group_Control_Query {
 	public function query_posts($posts_per_page) {
 
 		$default = $this->getGroupControlQueryArgs();
+		$args = [];
 		if ($posts_per_page) {
 			$args['posts_per_page'] = $posts_per_page;
 			$args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
@@ -1307,7 +1322,7 @@ class Maple_Grid extends Group_Control_Query {
 								<?php if (_is_upk_pro_activated()) :
 									if ('yes' === $settings['show_reading_time']) : ?>
 										<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-											<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'] ) ); ?>
+											<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no' ) ); ?>
 										</div>
 									<?php endif; ?>
 								<?php endif; ?>
@@ -1345,8 +1360,80 @@ class Maple_Grid extends Group_Control_Query {
 			return;
 		}
 
-		$this->add_render_attribute('grid-wrap', 'class', 'upk-post-grid');
+		$this->add_render_attribute('grid-wrap', 'class', 'upk-post-grid upk-ajax-grid-wrap');
 		$this->add_render_attribute('grid-wrap', 'class', 'upk-style-' . $settings['grid_style']);
+
+		$this->add_render_attribute(
+			[
+				'upk-maple-grid' => [
+					'class' => 'upk-maple-grid upk-ajax-grid',
+					'data-loadmore' => [
+						wp_json_encode(
+							array_filter([
+								'loadmore_enable'   => $settings['ajax_loadmore_enable'],
+								'loadmore_btn'      => $settings['ajax_loadmore_btn'],
+								'infinite_scroll'   => $settings['ajax_loadmore_infinite_scroll'],
+							])
+						),
+					],
+				],
+			]
+		);		
+
+		if ($settings['ajax_loadmore_enable'] == 'yes') {
+			$ajax_settings = [
+				'posts_source'                  => isset($settings['posts_source']) ? $settings['posts_source'] : 'post',
+				'posts_per_page'                => isset($posts_load) ? $posts_load : 6,
+				'ajax_item_load'                => isset($settings['ajax_loadmore_items']) ? $settings['ajax_loadmore_items'] : 3,
+				'posts_selected_ids'            => isset($settings['posts_selected_ids']) ? $settings['posts_selected_ids'] : '',
+				'posts_include_by'              => isset($settings['posts_include_by']) ? $settings['posts_include_by'] : [],
+				'posts_include_author_ids'      => isset($settings['posts_include_author_ids']) ? $settings['posts_include_author_ids'] : '',
+				'posts_include_term_ids'        => isset($settings['posts_include_term_ids']) ? $settings['posts_include_term_ids'] : '',
+				'posts_exclude_by'              => isset($settings['posts_exclude_by']) ? $settings['posts_exclude_by'] : [],
+				'posts_exclude_ids'             => isset($settings['posts_exclude_ids']) ? $settings['posts_exclude_ids'] : '',
+				'posts_exclude_author_ids'      => isset($settings['posts_exclude_author_ids']) ? $settings['posts_exclude_author_ids'] : '',
+				'posts_exclude_term_ids'        => isset($settings['posts_exclude_term_ids']) ? $settings['posts_exclude_term_ids'] : '',
+				'posts_offset'                  => isset($settings['posts_offset']) ? $settings['posts_offset'] : 0,
+				'posts_select_date'             => isset($settings['posts_select_date']) ? $settings['posts_select_date'] : '',
+				'posts_date_before'             => isset($settings['posts_date_before']) ? $settings['posts_date_before'] : '',
+				'posts_date_after'              => isset($settings['posts_date_after']) ? $settings['posts_date_after'] : '',
+				'posts_orderby'                 => isset($settings['posts_orderby']) ? $settings['posts_orderby'] : 'date',
+				'posts_order'                   => isset($settings['posts_order']) ? $settings['posts_order'] : 'DESC',
+				'posts_ignore_sticky_posts'     => isset($settings['posts_ignore_sticky_posts']) ? $settings['posts_ignore_sticky_posts'] : 'no',
+				'posts_only_with_featured_image'=> isset($settings['posts_only_with_featured_image']) ? $settings['posts_only_with_featured_image'] : 'no',
+				// Grid Settings
+				'show_title'                    => isset($settings['show_title']) ? $settings['show_title'] : 'yes',
+				'title_tags'                    => isset( $settings['title_tags'] ) ? $settings['title_tags'] : 'h3',
+				'show_excerpt'                  => isset($settings['show_excerpt']) ? $settings['show_excerpt'] : 'yes',
+				'show_author_avatar'            => isset($settings['show_author_avatar']) ? $settings['show_author_avatar'] : 'yes',
+				'show_author_name'              => isset($settings['show_author_name']) ? $settings['show_author_name'] : 'yes',
+				'show_date'                     => isset($settings['show_date']) ? $settings['show_date'] : 'yes',
+				'show_time'                     => isset($settings['show_time']) ? $settings['show_time'] : 'no',
+				'show_category'                 => isset($settings['show_category']) ? $settings['show_category'] : 'yes',
+				'show_post_format'              => isset($settings['show_post_format']) ? $settings['show_post_format'] : 'yes',
+				'show_reading_time'             => isset($settings['show_reading_time']) ? $settings['show_reading_time'] : 'no',
+				'avg_reading_speed'             => isset($settings['avg_reading_speed']) ? $settings['avg_reading_speed'] : 200,
+				'hide_seconds'                  => isset($settings['hide_seconds']) ? $settings['hide_seconds'] : 'no',
+				'hide_minutes'                  => isset($settings['hide_minutes']) ? $settings['hide_minutes'] : 'no',
+				'meta_separator'                => isset($settings['meta_separator']) ? $settings['meta_separator'] : '|',
+				'human_diff_time'               => isset($settings['human_diff_time']) ? $settings['human_diff_time'] : 'no',
+				'human_diff_time_short'         => isset($settings['human_diff_time_short']) ? $settings['human_diff_time_short'] : 'no',
+				'excerpt_length'                => isset($settings['excerpt_length']) ? $settings['excerpt_length'] : 20,
+				'title_style'                   => isset($settings['title_style']) ? $settings['title_style'] : '',
+				'upk_link_new_tab'              => isset($settings['upk_link_new_tab']) ? $settings['upk_link_new_tab'] : 'no',
+				'global_link'                   => isset($settings['global_link']) ? $settings['global_link'] : 'no',
+			];
+		
+			$this->add_render_attribute(
+				[
+					'upk-maple-grid' => [
+						'data-settings' => [
+							wp_json_encode($ajax_settings)
+						],
+					],
+				]
+			);
+		}		
 
 		if (isset($settings['upk_in_animation_show']) && ($settings['upk_in_animation_show'] == 'yes')) {
 			$this->add_render_attribute('grid-wrap', 'class', 'upk-in-animation');
@@ -1356,7 +1443,7 @@ class Maple_Grid extends Group_Control_Query {
 		}
 
 	?>
-		<div class="upk-maple-grid">
+		<div <?php $this->print_render_attribute_string('upk-maple-grid'); ?>>
 			<div <?php $this->print_render_attribute_string('grid-wrap'); ?>>
 
 				<?php while ($wp_query->have_posts()) :
@@ -1371,6 +1458,8 @@ class Maple_Grid extends Group_Control_Query {
 				<?php endwhile; ?>
 			</div>
 		</div>
+
+		<?php $this->render_ajax_loadmore(); ?>
 
 		<?php
 

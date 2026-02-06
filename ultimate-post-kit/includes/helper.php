@@ -202,7 +202,11 @@ function upk_get_category( $post_type ) {
 		foreach ( $categories as $category ) {
 			// Ensure $category is an object, not an array
 			if ( is_object( $category ) && isset( $category->term_id, $category->name, $category->slug ) ) {
-				$link                         = '<a href="' . esc_url( get_category_link( $category->term_id ) ) . '">' . $category->name . '</a>';
+				$link = '<a href="' . esc_url( get_category_link( $category->term_id ) ) . '" 
+							aria-label="' . esc_attr( 'Category ' . $category->name ) . '">' 
+							. esc_html( $category->name ) . 
+						'</a>';
+						
 				$_categories[ $category->slug ] = $link;
 			}
 		}
@@ -377,6 +381,7 @@ function ultimate_post_kit_post_pagination( $wp_query, $widget_id = '' ) {
 		$paged = $paged ? $paged : 1;
 		$page_var = 'paged';
 	}
+	
 	$max = intval( $wp_query->max_num_pages );
 
 	/** Add current page to the array */
@@ -395,7 +400,7 @@ function ultimate_post_kit_post_pagination( $wp_query, $widget_id = '' ) {
 		$links[] = $paged + 1;
 	}
 
-	printf( '<ul class="upk-pagination" data-widget-id="%s" data-debug-paged="%s" data-debug-max="%s" data-debug-is-front="%s">' . "\n", esc_attr($widget_id), esc_attr($paged), esc_attr($max), esc_attr(is_front_page() ? 'yes' : 'no') );
+	printf( '<ul class="upk-pagination" data-widget-id="%s">' . "\n", esc_attr($widget_id) );
 
 	/** Previous Post Link */
 	if ( $paged > 1 ) {
@@ -405,7 +410,7 @@ function ultimate_post_kit_post_pagination( $wp_query, $widget_id = '' ) {
 		} else {
 			$prev_link = get_pagenum_link( $prev_page );
 		}
-		printf( '<li class="upk-pagination-previous"><a href="%s"><span data-upk-pagination-previous><i class="upk-icon-arrow-left-5" aria-hidden="true"></i></span></a></li>' . "\n", esc_url( $prev_link ) );
+		printf( '<li class="upk-pagination-previous"><a href="%s" aria-label="' . esc_attr__( 'Previous Page', 'ultimate-post-kit' ) . '"><span data-upk-pagination-previous><i class="upk-icon-arrow-left-5" aria-hidden="true"></i></span></a></li>' . "\n", esc_url( $prev_link ) );
 	}
 
 	/** Link to first page, plus ellipses if necessary */
@@ -457,7 +462,7 @@ function ultimate_post_kit_post_pagination( $wp_query, $widget_id = '' ) {
 	if ( $paged < $max ) {
 		$next_page = $paged + 1;
 		$next_link = get_pagenum_link( $next_page );
-		printf( '<li class="upk-pagination-next"><a href="%s"><span data-upk-pagination-next><i class="upk-icon-arrow-right-5" aria-hidden="true"></i></span></a></li>' . "\n", esc_url( $next_link ) );
+		printf( '<li class="upk-pagination-next"><a href="%s" aria-label="' . esc_attr__( 'Next Page', 'ultimate-post-kit' ) . '"><span data-upk-pagination-next><i class="upk-icon-arrow-right-5" aria-hidden="true"></i></span></a></li>' . "\n", esc_url( $next_link ) );
 	}
 
 	echo '</ul>' . "\n";
@@ -492,16 +497,44 @@ function ultimate_post_kit_time_diff( $from, $to = '' ) {
 
 function ultimate_post_kit_post_time_diff( $format = '' ) {
 	$displayAgo = esc_html__( 'ago', 'ultimate-post-kit' );
+	$post_time    = get_the_time( 'U' );
+	$current_time = current_time( 'timestamp' );
 
 	if ( $format == 'short' ) {
-		$output = ultimate_post_kit_time_diff( strtotime( get_the_date() ), current_time( 'timestamp' ) );
+		$output = ultimate_post_kit_time_diff( $post_time, $current_time );
 	} else {
-		$output = human_time_diff( strtotime( get_the_date() ), current_time( 'timestamp' ) );
+		$output = human_time_diff( $post_time, $current_time );
 	}
 
 	$output = $output . ' ' . $displayAgo;
 
 	return $output;
+}
+
+// Filter to override WordPress posts_per_page for Builder pages
+add_action('pre_get_posts', 'ultimate_post_kit_override_posts_per_page_for_builder');
+
+function ultimate_post_kit_override_posts_per_page_for_builder($query) {
+	// Only affect main query
+	if (!$query->is_main_query()) {
+		return;
+	}
+	
+	// Check if we have pagination in URL
+	$paged = max(1, get_query_var('paged'), get_query_var('page'));
+	
+	// Only apply override on paginated pages (page > 1)
+	if ($paged <= 1) {
+		return;
+	}
+	
+	$post_id = get_queried_object_id();
+	
+	if ($post_id && function_exists('get_post_meta')) {
+		// Set posts_per_page to -1 to show all posts and avoid pagination conflicts
+		$query->set('posts_per_page', -1);
+		$query->set('nopaging', true);
+	}
 }
 
 function ultimate_post_kit_iso_time( $time ) {
@@ -857,18 +890,56 @@ function get_user_role( $id ) {
 /**
  * @param string $content return posts content
  * @param int $avg_reading_speed average word reading speed per minute
+ * @param string $hide_seconds whether to hide seconds (yes/no)
+ * @param string $hide_minutes whether to hide minutes (yes/no)
  *
  * @return string return average reading time of  specifiic posts.
  */
 
 if ( _is_upk_pro_activated() ) {
-	function ultimate_post_kit_reading_time( $content, $avg_reading_speed ) {
+	function ultimate_post_kit_reading_time( $content, $avg_reading_speed, $hide_seconds = 'no', $hide_minutes = 'no' ) {
 		$total_word      = str_word_count( strip_tags( $content ) );
 		$reading_minute  = floor( $total_word / $avg_reading_speed );
 		$reading_seconds = floor( $total_word % $avg_reading_speed / ( $avg_reading_speed / 60 ) );
+		
+		$hide_seconds = ( $hide_seconds === 'yes' );
+		$hide_minutes = ( $hide_minutes === 'yes' );
+		
+		// If hide_minutes is enabled, convert everything to seconds
+		if ( $hide_minutes ) {
+			$total_seconds = ( $reading_minute * 60 ) + $reading_seconds;
+			if ( $hide_seconds ) {
+				return '0 sec read';
+			}
+			return $total_seconds . ' sec read';
+		}
+		
 		if ( $total_word >= $avg_reading_speed ) {
-			return $reading_minute . ' min ' . $reading_seconds . ' sec read';
+			$parts = array();
+			
+			if ( $reading_minute > 0 ) {
+				$parts[] = $reading_minute . ' min';
+			}
+			
+			if ( ! $hide_seconds && $reading_seconds > 0 ) {
+				$parts[] = $reading_seconds . ' sec';
+			}
+			
+			// If no parts and seconds are not hidden, show at least seconds
+			if ( empty( $parts ) ) {
+				if ( ! $hide_seconds ) {
+					$parts[] = $reading_seconds . ' sec';
+				} else {
+					$parts[] = $reading_minute . ' min';
+				}
+			}
+			
+			return ! empty( $parts ) ? implode( ' ', $parts ) . ' read' : '0 sec read';
 		} else {
+			// For content less than reading speed, show seconds unless hidden
+			if ( $hide_seconds ) {
+				return '0 min read';
+			}
 			return $reading_seconds . ' sec read';
 		}
 	}

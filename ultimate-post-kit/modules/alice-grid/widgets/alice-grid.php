@@ -102,18 +102,18 @@ class Alice_Grid extends Group_Control_Query {
 		$this->add_responsive_control(
 			'columns',
 			[
-				'label' => __('Columns', 'ultimate-post-kit') . BDTUPK_PC,
+				'label' => esc_html__('Columns', 'ultimate-post-kit') . BDTUPK_PC,
 				'type' => Controls_Manager::SELECT,
 				'default'        => '3',
 				'tablet_default' => '2',
 				'mobile_default' => '1',
 				'options' => [
-					'1' => '1',
-					'2' => '2',
-					'3' => '3',
-					'4' => '4',
-					'5' => '5',
-					'6' => '6',
+					'1' => esc_html__('1', 'ultimate-post-kit'),
+					'2' => esc_html__('2', 'ultimate-post-kit'),
+					'3' => esc_html__('3', 'ultimate-post-kit'),
+					'4' => esc_html__('4', 'ultimate-post-kit'),
+					'5' => esc_html__('5', 'ultimate-post-kit'),
+					'6' => esc_html__('6', 'ultimate-post-kit'),
 				],
 				'selectors' => [
 					'{{WRAPPER}} .upk-alice-grid .upk-style-1' => $column_size,
@@ -248,7 +248,7 @@ class Alice_Grid extends Group_Control_Query {
 		$this->start_controls_section(
 			'section_post_query_builder',
 			[
-				'label' => __('Query', 'ultimate-post-kit'),
+				'label' => esc_html__('Query', 'ultimate-post-kit'),
 				'tab'   => Controls_Manager::TAB_CONTENT,
 			]
 		);
@@ -336,7 +336,7 @@ class Alice_Grid extends Group_Control_Query {
 		$this->add_control(
 			'meta_separator',
 			[
-				'label'       => __('Separator', 'ultimate-post-kit'),
+				'label'       => esc_html__('Separator', 'ultimate-post-kit'),
 				'type'        => Controls_Manager::TEXT,
 				'default'     => '.',
 				'label_block' => false,
@@ -358,10 +358,10 @@ class Alice_Grid extends Group_Control_Query {
 		$this->add_control(
 			'global_link',
 			[
-				'label'        => __('Item Wrapper Link', 'ultimate-post-kit'),
+				'label'        => esc_html__('Item Wrapper Link', 'ultimate-post-kit'),
 				'type'         => Controls_Manager::SWITCHER,
 				'prefix_class' => 'upk-global-link-',
-				'description'  => __('Be aware! When Item Wrapper Link activated then title link and read more link will not work', 'ultimate-post-kit'),
+				'description'  => esc_html__('Be aware! When Item Wrapper Link activated then title link and read more link will not work', 'ultimate-post-kit'),
 			]
 		);
 
@@ -379,7 +379,7 @@ class Alice_Grid extends Group_Control_Query {
 		$this->add_responsive_control(
 			'content_padding',
 			[
-				'label' 	 => __('Content Padding', 'ultimate-post-kit'),
+				'label' 	 => esc_html__('Content Padding', 'ultimate-post-kit'),
 				'type' 		 => Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -410,7 +410,7 @@ class Alice_Grid extends Group_Control_Query {
 		$this->add_control(
 			'overlay_blur_level',
 			[
-				'label'       => __('Blur Level', 'ultimate-post-kit'),
+				'label'       => esc_html__('Blur Level', 'ultimate-post-kit'),
 				'type'        => Controls_Manager::SLIDER,
 				'range'       => [
 					'px' => [
@@ -465,7 +465,7 @@ class Alice_Grid extends Group_Control_Query {
 		$this->add_responsive_control(
 			'item_padding',
 			[
-				'label' 	 => __('Padding', 'ultimate-post-kit'),
+				'label' 	 => esc_html__('Padding', 'ultimate-post-kit'),
 				'type' 		 => Controls_Manager::DIMENSIONS,
 				'size_units' => ['px', 'em', '%'],
 				'selectors'  => [
@@ -494,7 +494,7 @@ class Alice_Grid extends Group_Control_Query {
 		$this->add_control(
 			'overlay_blur_level_hover',
 			[
-				'label'       => __('Blur Level', 'ultimate-post-kit'),
+				'label'       => esc_html__('Blur Level', 'ultimate-post-kit'),
 				'type'        => Controls_Manager::SLIDER,
 				'range'       => [
 					'px' => [
@@ -644,7 +644,7 @@ class Alice_Grid extends Group_Control_Query {
 			Group_Control_Text_Shadow::get_type(),
 			[
 				'name' => 'title_text_shadow',
-				'label' => __('Text Shadow', 'ultimate-post-kit'),
+				'label' => esc_html__('Text Shadow', 'ultimate-post-kit'),
 				'selector' => '{{WRAPPER}} .upk-alice-grid .upk-title a',
 			]
 		);
@@ -936,6 +936,7 @@ class Alice_Grid extends Group_Control_Query {
 	public function query_posts($posts_per_page) {
 
 		$default = $this->getGroupControlQueryArgs();
+		$args = [];
 		if ($posts_per_page) {
 			$args['posts_per_page'] = $posts_per_page;
 			$args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
@@ -955,11 +956,13 @@ class Alice_Grid extends Group_Control_Query {
 
 		<div class="upk-author">
 			<span><?php echo esc_html_x('by', 'Frontend', 'ultimate-post-kit') ?></span>
-			<a href="<?php echo esc_url( get_author_posts_url(get_the_author_meta('ID')) ); ?>">
+			<a 
+				href="<?php echo esc_url( get_author_posts_url(get_the_author_meta('ID')) ); ?>"
+				aria-label="<?php echo esc_attr( 'View all posts by ' . get_the_author() ); ?>"
+			>
 				<?php echo esc_html( get_the_author() ) ?>
 			</a>
 		</div>
-
 	<?php
 	}
 
@@ -991,7 +994,7 @@ class Alice_Grid extends Group_Control_Query {
 						<?php if (_is_upk_pro_activated()) :
 							if ('yes' === $settings['show_reading_time']) : ?>
 								<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-									<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'] ) ); ?>
+									<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no' ) ); ?>
 								</div>
 							<?php endif; ?>
 						<?php endif; ?>
@@ -1040,45 +1043,52 @@ class Alice_Grid extends Group_Control_Query {
 			]
 		);
 
-		if ($settings['ajax_loadmore_enable'] == 'yes') {
+		if (isset($settings['ajax_loadmore_enable']) && $settings['ajax_loadmore_enable'] == 'yes') {
+
+			$ajax_settings = [
+				'posts_source'                => isset($settings['posts_source']) ? $settings['posts_source'] : 'post',
+				'posts_per_page'              => isset($posts_load) ? $posts_load : 6,
+				'ajax_item_load'              => isset($settings['ajax_loadmore_items']) ? $settings['ajax_loadmore_items'] : 3,
+				'posts_selected_ids'          => isset($settings['posts_selected_ids']) ? $settings['posts_selected_ids'] : '',
+				'posts_include_by'            => isset($settings['posts_include_by']) ? $settings['posts_include_by'] : '',
+				'posts_include_author_ids'    => isset($settings['posts_include_author_ids']) ? $settings['posts_include_author_ids'] : '',
+				'posts_include_term_ids'      => isset($settings['posts_include_term_ids']) ? $settings['posts_include_term_ids'] : '',
+				'posts_exclude_by'            => isset($settings['posts_exclude_by']) ? $settings['posts_exclude_by'] : '',
+				'posts_exclude_ids'           => isset($settings['posts_exclude_ids']) ? $settings['posts_exclude_ids'] : '',
+				'posts_exclude_author_ids'    => isset($settings['posts_exclude_author_ids']) ? $settings['posts_exclude_author_ids'] : '',
+				'posts_exclude_term_ids'      => isset($settings['posts_exclude_term_ids']) ? $settings['posts_exclude_term_ids'] : '',
+				'posts_offset'                => isset($settings['posts_offset']) ? $settings['posts_offset'] : 0,
+				'posts_select_date'           => isset($settings['posts_select_date']) ? $settings['posts_select_date'] : '',
+				'posts_date_before'           => isset($settings['posts_date_before']) ? $settings['posts_date_before'] : '',
+				'posts_date_after'            => isset($settings['posts_date_after']) ? $settings['posts_date_after'] : '',
+				'posts_orderby'               => isset($settings['posts_orderby']) ? $settings['posts_orderby'] : 'date',
+				'posts_order'                 => isset($settings['posts_order']) ? $settings['posts_order'] : 'DESC',
+				'posts_ignore_sticky_posts'   => isset($settings['posts_ignore_sticky_posts']) ? $settings['posts_ignore_sticky_posts'] : 'no',
+				'posts_only_with_featured_image' => isset($settings['posts_only_with_featured_image']) ? $settings['posts_only_with_featured_image'] : 'no',
+				// Grid Settings
+				'show_title'                  => isset($settings['show_title']) ? $settings['show_title'] : 'yes',
+				'title_tags'                  => isset($settings['title_tags']) ? $settings['title_tags'] : 'h3',
+				'show_author'                 => isset($settings['show_author']) ? $settings['show_author'] : 'yes',
+				'show_date'                   => isset($settings['show_date']) ? $settings['show_date'] : 'yes',
+				'show_time'                   => isset($settings['show_time']) ? $settings['show_time'] : 'no',
+				'show_category'               => isset($settings['show_category']) ? $settings['show_category'] : 'yes',
+				'show_reading_time'           => isset($settings['show_reading_time']) ? $settings['show_reading_time'] : 'no',
+				'avg_reading_speed'           => isset($settings['avg_reading_speed']) ? $settings['avg_reading_speed'] : 200,
+				'hide_seconds'                => isset($settings['hide_seconds']) ? $settings['hide_seconds'] : 'no',
+				'hide_minutes'                => isset($settings['hide_minutes']) ? $settings['hide_minutes'] : 'no',
+				'meta_separator'              => isset($settings['meta_separator']) ? $settings['meta_separator'] : '|',
+				'human_diff_time'             => isset($settings['human_diff_time']) ? $settings['human_diff_time'] : 'no',
+				'human_diff_time_short'       => isset($settings['human_diff_time_short']) ? $settings['human_diff_time_short'] : 'no',
+				'global_link'                 => isset($settings['global_link']) ? $settings['global_link'] : 'no',
+				'title_style'                 => isset($settings['title_style']) ? $settings['title_style'] : 'underline',
+				'upk_link_new_tab'            => isset($settings['upk_link_new_tab']) ? $settings['upk_link_new_tab'] : 'no',
+			];
+		
 			$this->add_render_attribute(
 				[
 					'upk-alice-grid' => [
 						'data-settings' => [
-							wp_json_encode(array_filter([
-								'posts_source' => $settings['posts_source'],
-								'posts_per_page' => isset($posts_load) ? $posts_load : 6,
-								'ajax_item_load' => isset($settings['ajax_loadmore_items']) ? $settings['ajax_loadmore_items'] : 3,
-								'posts_selected_ids' => $settings['posts_selected_ids'],
-								'posts_include_by' => $settings['posts_include_by'],
-								'posts_include_author_ids' => $settings['posts_include_author_ids'],
-								'posts_include_term_ids' => $settings['posts_include_term_ids'],
-								'posts_exclude_by' => $settings['posts_exclude_by'],
-								'posts_exclude_ids' => $settings['posts_exclude_ids'],
-								'posts_exclude_author_ids' => $settings['posts_exclude_author_ids'],
-								'posts_exclude_term_ids' => $settings['posts_exclude_term_ids'],
-								'posts_offset' => $settings['posts_offset'],
-								'posts_select_date' => $settings['posts_select_date'],
-								'posts_date_before' => $settings['posts_date_before'],
-								'posts_date_after' => $settings['posts_date_after'],
-								'posts_orderby' => $settings['posts_orderby'],
-								'posts_order' => $settings['posts_order'],
-								'posts_ignore_sticky_posts' => $settings['posts_ignore_sticky_posts'],
-								'posts_only_with_featured_image' => $settings['posts_only_with_featured_image'],
-
-								// Grid Settings
-								'show_title' => $settings['show_title'] ? $settings['show_title'] : 'yes',
-								'show_author' => $settings['show_author'] ? $settings['show_author'] : 'yes',
-								'show_date' => $settings['show_date'] ? $settings['show_date'] : 'yes',
-								'show_time' => $settings['show_time'] ? $settings['show_time'] : 'no',
-								'show_category' => $settings['show_category'] ? $settings['show_category'] : 'yes',
-								'show_reading_time' => $settings['show_reading_time'] ? $settings['show_reading_time'] : 'no',
-								'avg_reading_speed' => $settings['avg_reading_speed'] ? $settings['avg_reading_speed'] : 200,
-								'meta_separator' => $settings['meta_separator'] ? $settings['meta_separator'] : '|',
-								'human_diff_time' => $settings['human_diff_time'] ? $settings['human_diff_time'] : 'no',
-								'human_diff_time_short' => $settings['human_diff_time_short'] ? $settings['human_diff_time_short'] : 'no',
-
-							]))
+							wp_json_encode($ajax_settings)
 						]
 					]
 				]

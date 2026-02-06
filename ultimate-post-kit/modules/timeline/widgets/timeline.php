@@ -981,6 +981,7 @@ class Timeline extends Group_Control_Query {
 	public function query_posts( $posts_per_page ) {
 
 		$default = $this->getGroupControlQueryArgs();
+		$args = [];
 		if ( $posts_per_page ) {
 			$args['posts_per_page'] = $posts_per_page;
 			$args['paged']          = max( 1, get_query_var( 'paged' ), get_query_var( 'page' ) );
@@ -1072,9 +1073,11 @@ class Timeline extends Group_Control_Query {
 				<?php endif; ?>
 
 				<div class="upk-image-and-content-wrapper">
-					<div class="upk-image-wrapper">
-						<?php $this->render_image( get_post_thumbnail_id( $post_id ), $image_size ); ?>
-					</div>
+					<?php if( 'yes' === $settings['show_image'] ) : ?>
+						<div class="upk-image-wrapper">
+							<?php $this->render_image( get_post_thumbnail_id( $post_id ), $image_size ); ?>
+						</div>
+					<?php endif; ?>
 					<div class="upk-content-wrap">
 
 						<?php $this->render_category(); ?>

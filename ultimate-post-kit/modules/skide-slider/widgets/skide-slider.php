@@ -586,6 +586,9 @@ class Skide_Slider extends Group_Control_Query {
 				'name'     => 'meta_author_typography',
 				'label'    => esc_html__('Author Typography', 'ultimate-post-kit'),
 				'selector' => '{{WRAPPER}} .upk-skide-slider .upk-meta .upk-author-name a',
+				'condition' => [
+					'show_author' => 'yes',
+				],
 			]
 		);
 
@@ -877,9 +880,10 @@ class Skide_Slider extends Group_Control_Query {
 	public function query_posts($posts_per_page) {
 
 		$default = $this->getGroupControlQueryArgs();
+		$args = [];
 		if ($posts_per_page) {
 			$args['posts_per_page'] = $posts_per_page;
-			$args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
+			// $args['paged']  = max(1, get_query_var('paged'), get_query_var('page'));
 		}
 		$args         = array_merge($default, $args);
 		$this->_query = new WP_Query($args);
@@ -1041,7 +1045,7 @@ class Skide_Slider extends Group_Control_Query {
 
 	?>
 		<div <?php $this->print_render_attribute_string('skide-slider'); ?>>
-			<div <?php echo $this->get_render_attribute_string('swiper'); ?>>
+			<div <?php $this->print_render_attribute_string('swiper'); ?>>
 				<div class="swiper-wrapper">
 				<?php
 			}
@@ -1079,16 +1083,19 @@ class Skide_Slider extends Group_Control_Query {
 				<?php endif; ?>
 
 				<div class="upk-meta" data-swiper-parallax="-100">
+					<?php if ('yes' === $settings['show_author']) : ?>
 					<div class="upk-author-img">
 						<?php echo get_avatar(get_the_author_meta('ID'), 48); ?>
 					</div>
+					<?php endif; ?>
 					<div class="upk-meta-info">
+						<?php if ('yes' === $settings['show_author']) : ?>
 						<div class="upk-author-name">
 							<a href="<?php echo esc_url( get_author_posts_url(get_the_author_meta('ID')) ); ?>">
 								<?php echo esc_html( get_the_author() ); ?>
 							</a>
 						</div>
-
+						<?php endif; ?>
 						<?php if ($settings['show_comments'] or $settings['show_date'] or $settings['show_reading_time']) : ?>
 							<div class="upk-date-comments">
 								<?php $this->render_date(); ?>
@@ -1102,7 +1109,7 @@ class Skide_Slider extends Group_Control_Query {
 								<?php if (_is_upk_pro_activated()) :
 									if ('yes' === $settings['show_reading_time']) : ?>
 										<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
-											<?php echo esc_html( ultimate_post_kit_reading_time(get_the_content(), $settings['avg_reading_speed']) ); ?>
+											<?php echo esc_html( ultimate_post_kit_reading_time(get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no') ); ?>
 										</div>
 									<?php endif; ?>
 								<?php endif; ?>
