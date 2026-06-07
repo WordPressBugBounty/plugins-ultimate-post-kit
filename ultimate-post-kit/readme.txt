@@ -2,7 +2,7 @@
 Contributors: bdthemes, selimmw, mohammaadfarid, abutalib, maudud, sohanurrahman, muhammadasik, syedfarhanreza, shmusuf, arafatakashakku, shaikatazim, shamim496
 Donate link: http://bdthemes.com/
 Tags: elementor, posts, post grid, post carousel, elementor addons
-Stable tag: 4.1.11
+Stable tag: 4.1.12
 Requires at least: 5.0.0
 Requires PHP: 7.0.0
 Tested up to: 7.0
@@ -263,6 +263,10 @@ https://youtu.be/zNeoRz94cPw?si=fOqZWKvcSEHSSKSp
 
 
 == Changelog ==
+
+= 4.1.12 [7th June 2026] =
+
+* Fixed: Double HTML escaping on author name in the buzz list carousel widget ( Thanks to itapress )
 
 = 4.1.11 [7th June 2026] =
 
