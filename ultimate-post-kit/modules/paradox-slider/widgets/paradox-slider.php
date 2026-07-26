@@ -447,8 +447,11 @@ class Paradox_Slider extends Group_Control_Query {
 		$this->add_control(
 			'pauseonhover',
 			[
-				'label' => esc_html__( 'Pause on Hover', 'ultimate-post-kit' ),
-				'type'  => Controls_Manager::SWITCHER,
+				'label'     => esc_html__( 'Pause on Hover', 'ultimate-post-kit' ),
+				'type'      => Controls_Manager::SWITCHER,
+				'condition' => [
+					'autoplay' => 'yes',
+				],
 			]
 		);
 
@@ -2388,7 +2391,7 @@ class Paradox_Slider extends Group_Control_Query {
 							<?php $this->render_date(); ?>
 							<?php if (_is_upk_pro_activated()) :
 								if ('yes' === $settings['show_reading_time']) : ?>
-									<div class="upk-reading-time" data-separator="<?php echo esc_html($settings['meta_separator']); ?>">
+									<div class="upk-reading-time" data-separator="<?php echo esc_attr($settings['meta_separator']); ?>">
 										<?php echo esc_html( ultimate_post_kit_reading_time( get_the_content(), $settings['avg_reading_speed'], $settings['hide_seconds'] ?? 'no', $settings['hide_minutes'] ?? 'no' ) ); ?>
 									</div>
 								<?php endif; ?>
