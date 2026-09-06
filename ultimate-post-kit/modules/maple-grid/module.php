@@ -32,6 +32,12 @@ class Module extends Ultimate_Post_Kit_Module_Base {
 	}
 
 	public function callback_ajax_loadmore_posts() {
+		// Verify the front-end nonce (sent by UltimatePostKitConfig.nonce) before
+		// processing this public load-more request.
+		if ( ! check_ajax_referer( 'upk-site', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'ultimate-post-kit' ) ), 403 );
+		}
+
 
     $settings = [];
 
@@ -193,9 +199,9 @@ class Module extends Ultimate_Post_Kit_Module_Base {
                                             the_excerpt(); 
                                         } else {
                                             if ( function_exists( 'ultimate_post_kit_custom_excerpt' ) ) {
-                                                echo wp_kses_post( ultimate_post_kit_custom_excerpt( intval( $settings['excerpt_length'] ?? 20 ), false, '' ) );
+                                                echo wp_kses_post( ultimate_post_kit_custom_excerpt( ultimate_post_kit_clamp_excerpt_length( $settings['excerpt_length'] ?? 20, 20 ), false, '' ) );
                                             } else {
-                                                echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_content() ), intval( $settings['excerpt_length'] ?? 20 ) ) );
+                                                echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_content() ), ultimate_post_kit_clamp_excerpt_length( $settings['excerpt_length'] ?? 20, 20 ) ) );
                                             }
                                         } 
                                     ?>

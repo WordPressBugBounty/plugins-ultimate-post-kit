@@ -39,7 +39,7 @@ class UltimatePostKit_Dynamic_Select_Input_Module {
 	 * get Ajax Data
 	 */
 	public function getSelectInputData() {
-		$nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
+		$nonce = isset($_POST['security']) ? sanitize_text_field(wp_unslash($_POST['security'])) : '';
 
 		try {
 			if (!wp_verify_nonce($nonce, 'upk_dynamic_select')) {
@@ -50,7 +50,7 @@ class UltimatePostKit_Dynamic_Select_Input_Module {
 				throw new \Exception('Unauthorized request');
 			}
 
-			$query = isset($_POST['query']) ? sanitize_text_field($_POST['query']) : '';
+			$query = isset($_POST['query']) ? sanitize_text_field(wp_unslash($_POST['query'])) : '';
 
 			if ($query == 'terms') {
 				$data = $this->getTerms();
@@ -73,7 +73,8 @@ class UltimatePostKit_Dynamic_Select_Input_Module {
 	 * @return string
 	 */
 	protected function getPostType() {
-		return isset($_POST['post_type']) ? sanitize_text_field($_POST['post_type']) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in getSelectInputData() before this helper runs.
+		return isset($_POST['post_type']) ? sanitize_text_field(wp_unslash($_POST['post_type'])) : '';
 	}
 
 	/**
@@ -87,14 +88,16 @@ class UltimatePostKit_Dynamic_Select_Input_Module {
 	 * @return string
 	 */
 	protected function getSearchQuery() {
-		return isset($_POST['search_text']) ? sanitize_text_field($_POST['search_text']) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in getSelectInputData() before this helper runs.
+		return isset($_POST['search_text']) ? sanitize_text_field(wp_unslash($_POST['search_text'])) : '';
 	}
 
 	/**
 	 * @return array|mixed
 	 */
 	protected function getselecedIds() {
-		return isset($_POST['ids']) ? sanitize_text_field($_POST['ids']) : [];
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in getSelectInputData() before this helper runs.
+		return isset($_POST['ids']) ? sanitize_text_field(wp_unslash($_POST['ids'])) : [];
 	}
 
 
@@ -130,16 +133,24 @@ class UltimatePostKit_Dynamic_Select_Input_Module {
 
 		$args['post_status'] = 'publish';
 
-		if ($this->getPostType()) {
-			$args['post_type'] = $this->getPostType();
+		$public_post_types = $this->getAllPublicPostTypes();
+		$requested_post_type = $this->getPostType();
+
+		// post_type comes straight from $_POST. Restrict it to the public post types this
+		// control is meant to browse so it cannot be pointed at a private post type.
+		if ($requested_post_type && in_array($requested_post_type, $public_post_types, true)) {
+			$args['post_type'] = $requested_post_type;
 		} else {
-			$args['post_type'] = $this->getAllPublicPostTypes();
+			$args['post_type'] = $public_post_types;
 		}
+
 		if (!empty($include)) {
 			$args['post__in']     = $include;
-			$args['posts_per_page'] = count($include);
+			$args['posts_per_page'] = min(100, count($include));
 		} else {
-			$args['posts_per_page'] = -1;
+			// Never run this unbounded: it is reachable by any 'edit_posts' user and
+			// -1 returns every published post of every public post type.
+			$args['posts_per_page'] = 50;
 		}
 		if ($searchText) {
 			$args['s'] = $searchText;
@@ -264,15 +275,32 @@ class UltimatePostKit_Dynamic_Select_Input_Module {
 		$args = [
 			'fields'  => ['ID', 'display_name'],
 			'orderby' => 'display_name',
+			// Always bound the result set. Without this an empty search returns every
+			// user on the site, unpaged.
+			'number'  => 20,
 		];
+
+		// This endpoint is only capability-gated on 'edit_posts', so a Contributor can
+		// reach it. WordPress core restricts callers without 'list_users' to users who
+		// have published something (see WP_REST_Users_Controller::get_items), so match
+		// that restriction rather than exposing the full user table.
+		if (!current_user_can('list_users')) {
+			$args['has_published_posts'] = true;
+		}
 
 		if (!empty($include)) {
 			$args['include'] = $include;
+			// Resolving already-selected values needs room for all of them, but still
+			// bounded so a long id list cannot be used to dump the table.
+			$args['number'] = min(100, max(20, count($include)));
 		}
 
 		if ($search_text) {
-			$args['number'] = 20;
 			$args['search'] = "*$search_text*";
+			// WP_User_Query searches user_email when the term contains "@", which turns
+			// this into an address oracle. Core strips user_email from the searchable
+			// columns for callers without 'list_users'; do the same here.
+			$args['search_columns'] = ['ID', 'user_login', 'user_nicename', 'display_name'];
 		}
 
 		$users = get_users($args);

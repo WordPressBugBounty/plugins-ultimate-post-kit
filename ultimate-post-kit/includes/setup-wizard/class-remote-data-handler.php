@@ -37,8 +37,8 @@ class Remote_Data_Handler {
     public static function init() {
         add_action('init', [__CLASS__, 'schedule_cron']);
         add_action(self::CRON_HOOK, [__CLASS__, 'cron_fetch_plugins']);
+        // Admin-only plugin-install data; never expose to unauthenticated visitors.
         add_action('wp_ajax_upk_get_plugins', [__CLASS__, 'ajax_get_plugins']);
-        add_action('wp_ajax_nopriv_upk_get_plugins', [__CLASS__, 'ajax_get_plugins']);
     }
 
     /**
@@ -59,15 +59,18 @@ class Remote_Data_Handler {
         }
 
         // Check if this is an AJAX request for our plugins
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing check of the AJAX action name, no form data processed.
         if (wp_doing_ajax() && isset($_REQUEST['action'])) {
-            $action = sanitize_text_field($_REQUEST['action']);
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing check of the AJAX action name, no form data processed.
+            $action = sanitize_text_field(wp_unslash($_REQUEST['action']));
             if (in_array($action, ['upk_get_plugins'])) {
                 return true;
             }
         }
 
-        $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
-        return $page === 'element_pack_options';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only check of the current admin page slug, no form data processed.
+        $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
+        return $page === 'ultimate_post_kit_options';
     }
 
     /**
@@ -151,7 +154,13 @@ class Remote_Data_Handler {
     public static function ajax_get_plugins() {
         // Verify nonce for security
         if (!check_ajax_referer('upk_get_plugins_nonce', 'nonce', false)) {
-            wp_die(esc_html__('Security check failed.', 'ultimate-post-kit'));
+            wp_send_json_error(['message' => __('Security check failed.', 'ultimate-post-kit')], 403);
+        }
+
+        // Gate to users who could act on it; also prevents the synchronous
+        // remote-fetch trigger below from being reachable without capability.
+        if (!current_user_can('install_plugins')) {
+            wp_send_json_error(['message' => __('You do not have permission to do this.', 'ultimate-post-kit')], 403);
         }
 
         // Get cached data
@@ -201,9 +210,9 @@ class Remote_Data_Handler {
             }
             
             $formatted_plugins[] = [
-                'name' => $data['name'] ?? '',
+                'name' => self::decode_api_text($data['name'] ?? ''),
                 'slug' => $data['slug'] ?? '',
-                'description' => $data['description'] ?? '',
+                'description' => self::decode_api_text($data['description'] ?? ''),
                 'logo' => $data['logo'] ?? '',
                 'rating' => $data['rating'] ?? 0,
                 'rating_percentage' => $data['rating_percentage'] ?? 0,
@@ -229,6 +238,30 @@ class Remote_Data_Handler {
             'loading' => false,
             'message' => __('Plugin data loaded successfully.', 'ultimate-post-kit')
         ]);
+    }
+
+    /**
+     * Decode display text coming from the WordPress.org plugins API.
+     *
+     * The API returns strings that are already HTML-encoded, e.g.
+     * "Element Pack Lite &#8211; Addons for Elementor". The renderer escapes
+     * again before injecting into the DOM, which turns the leading "&" into
+     * "&amp;" and prints the entity literally instead of an en dash. Decoding
+     * here means exactly one round of escaping happens, at output.
+     *
+     * Applied when building the response rather than when caching, so
+     * already-cached entries are corrected without waiting for the transient
+     * to expire.
+     *
+     * @param mixed $text Raw value from the API.
+     * @return string Plain text, still to be escaped at output.
+     */
+    private static function decode_api_text($text) {
+        if (!is_string($text) || '' === $text) {
+            return '';
+        }
+
+        return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
     /**

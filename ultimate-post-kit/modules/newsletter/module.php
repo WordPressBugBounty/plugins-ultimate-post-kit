@@ -45,6 +45,13 @@ class Module extends Ultimate_Post_Kit_Module_Base
         $list_id = (!empty($options['mailchimp_list_id'])) ? $options['mailchimp_list_id'] : ''; // Your list is here
         $api_key = (!empty($options['mailchimp_api_key'])) ? $options['mailchimp_api_key'] : ''; // Your mailchimp api key here
 
+        // This endpoint is registered on wp_ajax_nopriv_, so it is reachable before the
+        // site owner has configured Mailchimp at all. Without credentials the request
+        // below would be built against an unresolvable host and fail.
+        if (empty($api_key) || empty($list_id) || false === strpos($api_key, '-')) {
+            return null;
+        }
+
         $args = array(
             'method' => 'PUT',
             'headers' => array(
@@ -58,7 +65,13 @@ class Module extends Ultimate_Post_Kit_Module_Base
         );
         $response = wp_remote_post('https://' . substr($api_key, strpos($api_key, '-') + 1) . '.api.mailchimp.com/3.0/lists/' . $list_id . '/members/' . md5(strtolower($email)), $args);
 
-        $body = json_decode($response['body']);
+        // A transport failure returns WP_Error, which is an object: indexing it as an
+        // array is a fatal. The caller already handles a null/!is_object result.
+        if (is_wp_error($response)) {
+            return null;
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response));
 
 		return $body;
     }
@@ -67,10 +80,27 @@ class Module extends Ultimate_Post_Kit_Module_Base
     public function mailchimp_subscribe()
     {
 
-        $fname = (isset($_POST['fname']) && !empty($_POST['fname'])) ? sanitize_text_field($_POST['fname']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- unauthenticated public newsletter subscribe form; input is sanitized and the e-mail validated before use, no nonce is expected from anonymous visitors.
+        $fname = (isset($_POST['fname']) && !empty($_POST['fname'])) ? sanitize_text_field(wp_unslash($_POST['fname'])) : '';
 
-        $result  = $this->mailchimp_subscriber_status(sanitize_text_field($_POST['email']), 'subscribed', ['FNAME' => $fname, 'LNAME' => '']);
- 
+        // Validate the address before hitting the Mailchimp API. This endpoint is
+        // unauthenticated, so reject anything that is not a real e-mail rather
+        // than forwarding arbitrary input to the list.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- unauthenticated public newsletter subscribe form; input is sanitized and the e-mail validated before use, no nonce is expected from anonymous visitors.
+        $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+
+        if (empty($email) || ! is_email($email)) {
+            echo '<div class="upk-text-warning">' . esc_html_x('Please enter a valid email address.', 'Mailchimp String', 'ultimate-post-kit') . '</div>';
+            die;
+        }
+
+        $result  = $this->mailchimp_subscriber_status($email, 'subscribed', ['FNAME' => $fname, 'LNAME' => '']);
+
+        if (! is_object($result) || ! isset($result->status)) {
+            echo '<div class="upk-text-danger">' . esc_html_x('An unexpected internal error has occurred. Please contact Support for more information.', 'Mailchimp String', 'ultimate-post-kit') . '</div>';
+            die;
+        }
+
         if ($result->status == 400) {
             if (isset($result->detail) && !empty($result->detail)) {
 				echo '<div class="upk-text-warning">' . esc_html($result->detail) . '</div>';

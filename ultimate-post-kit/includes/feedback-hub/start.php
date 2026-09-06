@@ -7,13 +7,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! function_exists( 'rc_dynamic_init' ) ) {
-	function rc_dynamic_init( $params ) {
+if ( ! function_exists( 'ultimate_post_kit_reviews_init' ) ) {
+	function ultimate_post_kit_reviews_init( $params ) {
+
+		// is_admin() is also true on admin-ajax.php, which fires admin_init before any
+		// authentication, so without this the SDK's constructor (and its option writes)
+		// would run for anonymous callers. Logged-in requests must still reach it during
+		// AJAX, because the constructor is what registers this SDK's own ajax handlers.
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
 
 		if ( is_admin() ) :
 
 			$menu_slug    = isset( $params['menu']['slug'] ) ? $params['menu']['slug'] : false;
-			$current_page = isset( $_GET['page'] ) ? $_GET['page'] : false;
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only check of the current admin page slug for display routing, no form data processed.
+			$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : false;
 
 			/**
 			 * Attach SDK to current page
@@ -25,9 +34,7 @@ if ( ! function_exists( 'rc_dynamic_init' ) ) {
 			 * Include SDK
 			 */
 			require_once dirname( __FILE__ ) . '/notice.php';
-			if ( function_exists( 'rc_sdk_automate' ) ) {
-				rc_sdk_automate( $params );
-			}
+			ultimate_post_kit_reviews_automate( $params );
 
 		endif;
 	}

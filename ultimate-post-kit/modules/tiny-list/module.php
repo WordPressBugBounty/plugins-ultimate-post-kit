@@ -32,6 +32,12 @@ class Module extends Ultimate_Post_Kit_Module_Base {
 	}
 
 	public function callback_ajax_loadmore_posts() {
+		// Verify the front-end nonce (sent by UltimatePostKitConfig.nonce) before
+		// processing this public load-more request.
+		if ( ! check_ajax_referer( 'upk-site', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'ultimate-post-kit' ) ), 403 );
+		}
+
 
 		$settings = [];
 
@@ -89,9 +95,10 @@ class Module extends Ultimate_Post_Kit_Module_Base {
 							<img class="upk-img" src="<?php echo esc_url( $image_src ); ?>" alt="<?php echo esc_attr( $title ); ?>">
 						<?php endif; ?>
 
-						<?php if ( ! empty( $settings['show_item_icon']['value'] ) ) : ?>
+						<?php $upk_item_icon = ultimate_post_kit_sanitize_request_icon( $settings['show_item_icon'] ?? null ); ?>
+						<?php if ( $upk_item_icon ) : ?>
 							<div class="upk-title-icon">
-								<?php \Elementor\Icons_Manager::render_icon( $settings['show_item_icon'], [ 'aria-hidden' => 'true', 'class' => 'fa-fw' ] ); ?>
+								<?php \Elementor\Icons_Manager::render_icon( $upk_item_icon, [ 'aria-hidden' => 'true', 'class' => 'fa-fw' ] ); ?>
 							</div>
 						<?php endif; ?>
 

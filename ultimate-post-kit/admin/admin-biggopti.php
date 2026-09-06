@@ -39,7 +39,7 @@ class Biggopties {
 	 */
 	private function get_api_biggopties_data() {
 		// API endpoint for biggopties - you can change this to your actual endpoint
-		$api_url = 'https://api.sigmative.io/prod/store/api/biggopti/api-data-records';
+		$api_url = '';
 
 		$response = wp_remote_get($api_url, [
 			'timeout' => 30,
@@ -204,11 +204,6 @@ class Biggopties {
 	private function render_api_biggopti($biggopti) {
 		ob_start();
 		
-		// Add custom CSS if provided
-		if (isset($biggopti->custom_css) && !empty($biggopti->custom_css)) {
-			echo '<style>' . wp_kses_post($biggopti->custom_css) . '</style>';
-		}
-		
 		// Prepare background styles
 		$background_style = '';
 		$wrapper_classes = 'bdt-biggopti-wrapper';
@@ -297,7 +292,7 @@ class Biggopties {
 	 * AJAX: Build and return API biggopties HTML for dynamic injection
 	 */
 	public function ajax_fetch_api_biggopties() {
-		$nonce = isset($_POST['_wpnonce']) ? sanitize_text_field($_POST['_wpnonce']) : '';
+		$nonce = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
 		if (!wp_verify_nonce($nonce, 'ultimate-post-kit')) {
 			wp_send_json_error([ 'message' => 'invalid_nonce' ]);
 		}
@@ -307,7 +302,7 @@ class Biggopties {
 		}
 
 		// Don't show biggopties on plugin/theme install and upload pages
-		$current_url = isset($_POST['current_url']) ? sanitize_text_field($_POST['current_url']) : '';
+		$current_url = isset($_POST['current_url']) ? sanitize_text_field(wp_unslash($_POST['current_url'])) : '';
 
 		if (!empty($current_url)) {
 			$excluded_patterns = [
@@ -364,10 +359,10 @@ class Biggopties {
 	 * Dismiss Biggopti.
 	 */
 	public function dismiss() {
-		$nonce = (isset($_POST['_wpnonce'])) ? sanitize_text_field($_POST['_wpnonce']) : '';
-		$id   = (isset($_POST['id'])) ? esc_attr($_POST['id']) : '';
-		$time = (isset($_POST['time'])) ? esc_attr($_POST['time']) : '';
-		$meta = (isset($_POST['meta'])) ? esc_attr($_POST['meta']) : '';
+		$nonce = (isset($_POST['_wpnonce'])) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
+		$id   = isset($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : '';
+		$time = isset($_POST['time']) ? absint(wp_unslash($_POST['time'])) : 0;
+		$meta = isset($_POST['meta']) ? sanitize_text_field(wp_unslash($_POST['meta'])) : '';
 
 		if ( ! wp_verify_nonce($nonce, 'ultimate-post-kit') ) {
 			wp_send_json_error();
@@ -388,12 +383,12 @@ class Biggopties {
 				set_transient($id, true, $time);
 
 				// Also store in options table for persistence
-				$dismissals_option = get_option('bdt_biggopti_dismissals', []);
+				$dismissals_option = get_option('bdtupk_biggopti_dismissals', []);
 				$dismissals_option[$id] = [
 					'dismissed_at' => time(),
 					'expires_at' => time() + intval($time),
 				];
-				update_option('bdt_biggopti_dismissals', $dismissals_option, false);
+				update_option('bdtupk_biggopti_dismissals', $dismissals_option, false);
 			}
 
 			wp_send_json_success();
@@ -467,7 +462,7 @@ class Biggopties {
 
 				// If transient not found, check options table for persistent dismissal
 				if (false === $expired || empty($expired)) {
-					$dismissals_option = get_option('bdt_biggopti_dismissals', []);
+					$dismissals_option = get_option('bdtupk_biggopti_dismissals', []);
 					if (isset($dismissals_option[$biggopti_id])) {
 						$dismissal = $dismissals_option[$biggopti_id];
 						// Check if dismissal is still valid (not expired)
@@ -476,7 +471,7 @@ class Biggopties {
 						} else {
 							// Clean up expired dismissal from options
 							unset($dismissals_option[$biggopti_id]);
-							update_option('bdt_biggopti_dismissals', $dismissals_option, false);
+							update_option('bdtupk_biggopti_dismissals', $dismissals_option, false);
 						}
 					}
 				}

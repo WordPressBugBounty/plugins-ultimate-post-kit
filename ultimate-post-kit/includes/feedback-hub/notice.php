@@ -4,8 +4,8 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-if (!class_exists('RC_Reviews_Collector')) {
-	class RC_Reviews_Collector {
+if (!class_exists('Ultimate_Post_Kit_Reviews_Collector')) {
+	class Ultimate_Post_Kit_Reviews_Collector {
 
 		public $version = '1.0.0';
 
@@ -42,8 +42,8 @@ if (!class_exists('RC_Reviews_Collector')) {
 			$this->review_url = isset($params['review_url']) ? $params['review_url'] : false;
 
 			// add_action( 'admin_enqueue_scripts', array( $this, 'rc_enqueue_scripts' ) );
-			add_action('wp_ajax_rc_sdk_insights', array($this, 'rc_sdk_insights'));
-			add_action('wp_ajax_rc_sdk_dismiss_notice', array($this, 'rc_sdk_dismiss_notice'));
+			add_action('wp_ajax_ultimate_post_kit_reviews_insights', array($this, 'rc_sdk_insights'));
+			add_action('wp_ajax_ultimate_post_kit_reviews_dismiss_notice', array($this, 'rc_sdk_dismiss_notice'));
 
 			$security_key        = md5($params['plugin_name']);
 			$this->rc_name       = 'rc_' . str_replace('-', '_', sanitize_title($params['plugin_name']) . '_' . $security_key);
@@ -160,10 +160,19 @@ if (!class_exists('RC_Reviews_Collector')) {
 		 * Ajax callback
 		 */
 		public function rc_sdk_insights() {
-			$sanitized_status = isset($_POST['button_val']) ? sanitize_text_field($_POST['button_val']) : '';
-			$nonce            = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
-			$allow_name       = isset($_POST['allow_name']) ? sanitize_text_field($_POST['allow_name']) : '';
-			$date_name        = isset($_POST['date_name']) ? sanitize_text_field($_POST['date_name']) : '';
+			$sanitized_status = isset($_POST['button_val']) ? sanitize_text_field(wp_unslash($_POST['button_val'])) : '';
+			$nonce            = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+			$allow_name       = isset($_POST['allow_name']) ? sanitize_text_field(wp_unslash($_POST['allow_name'])) : '';
+			$date_name        = isset($_POST['date_name']) ? sanitize_text_field(wp_unslash($_POST['date_name'])) : '';
+
+			// Confine the writes to this SDK's own option namespace so a request
+			// cannot use these to overwrite an arbitrary WordPress option.
+			if (0 !== strpos($allow_name, 'rc_allow_')) {
+				$allow_name = '';
+			}
+			if (0 !== strpos($date_name, 'rc_date_')) {
+				$date_name = '';
+			}
 
 			if (!wp_verify_nonce($nonce, 'rc_sdk')) {
 				wp_send_json(array(
@@ -183,17 +192,19 @@ if (!class_exists('RC_Reviews_Collector')) {
 				wp_die();
 			}
 
-			if ('disallow' == $sanitized_status) {
+			if ('disallow' == $sanitized_status && $allow_name) {
 				update_option($allow_name, 'disallow');
 			}
 
-			if ($sanitized_status == 'skip') {
+			if ($sanitized_status == 'skip' && $allow_name) {
 				update_option($allow_name, 'skip');
 				/**
 				 * Next schedule date for attempt
 				 */
-				update_option($date_name, gmdate('Y-m-d', strtotime("+1 month")));
-			} elseif ($sanitized_status == 'yes') {
+				if ($date_name) {
+					update_option($date_name, gmdate('Y-m-d', strtotime("+1 month")));
+				}
+			} elseif ($sanitized_status == 'yes' && $allow_name) {
 				update_option($allow_name, 'yes');
 			}
 
@@ -269,8 +280,8 @@ if (!class_exists('RC_Reviews_Collector')) {
 		 * @return void
 		 */
 		public function rc_sdk_dismiss_notice() {
-			$nonce   = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
-			$rc_name = isset($_POST['rc_name']) ? sanitize_text_field($_POST['rc_name']) : '';
+			$nonce   = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+			$rc_name = isset($_POST['rc_name']) ? sanitize_text_field(wp_unslash($_POST['rc_name'])) : '';
 
 			if (!wp_verify_nonce($nonce, 'rc_sdk')) {
 				wp_send_json(array(
@@ -305,11 +316,6 @@ if (!class_exists('RC_Reviews_Collector')) {
 /**
  * Main Insights Function
  */
-if (!function_exists('rc_sdk_automate')) {
-	function rc_sdk_automate($params) {
-		if (class_exists('RC_Reviews_Collector')) {
-			// RC_Reviews_Collector::get_instance( $params );
-			new RC_Reviews_Collector($params);
-		}
-	}
+function ultimate_post_kit_reviews_automate($params) {
+	new Ultimate_Post_Kit_Reviews_Collector($params);
 }

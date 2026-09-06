@@ -32,6 +32,12 @@ class Module extends Ultimate_Post_Kit_Module_Base {
 	}
 
 	public function callback_ajax_loadmore_posts() {
+		// Verify the front-end nonce (sent by UltimatePostKitConfig.nonce) before
+		// processing this public load-more request.
+		if ( ! check_ajax_referer( 'upk-site', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'ultimate-post-kit' ) ), 403 );
+		}
+
 
 		$settings = [];
 
@@ -174,7 +180,7 @@ class Module extends Ultimate_Post_Kit_Module_Base {
 											echo esc_html(
 												wp_trim_words(
 													get_the_excerpt(),
-													absint($settings['excerpt_length'] ?? 20)
+													ultimate_post_kit_clamp_excerpt_length($settings['excerpt_length'] ?? 20, 20)
 												)
 											);
 											?>
