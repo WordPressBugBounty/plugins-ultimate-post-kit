@@ -62,6 +62,9 @@ class Module extends Ultimate_Post_Kit_Module_Base {
             $settings
         );
 
+		// Fill display flags the request may have omitted (see trait) before the render loop reads them.
+		$settings = array_merge( $this->loadmore_display_defaults(), $settings );
+
 		$ajaxposts = $this->query_args($settings);
 	
 		ob_start();
@@ -94,7 +97,7 @@ class Module extends Ultimate_Post_Kit_Module_Base {
 
 						<?php if ( isset( $settings['show_category'] ) && 'yes' === $settings['show_category'] ) : ?>
 							<div class="upk-category">
-								<?php echo wp_kses_post( upk_get_category( $settings['post_source'] ) ); ?>
+								<?php echo wp_kses_post( upk_get_category( $settings['posts_source'] ?? 'post' ) ); ?>
 							</div>
 						<?php endif; ?>
 

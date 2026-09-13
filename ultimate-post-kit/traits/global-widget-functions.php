@@ -9,6 +9,42 @@ defined('ABSPATH') || die();
 trait Global_Widget_Functions {
 
 	/**
+	 * Default display flags for the load-more AJAX handlers.
+	 *
+	 * The widgets always emit every one of these keys into their data-settings
+	 * payload, so this never changes rendering for a real request. It only matters
+	 * for the unauthenticated wp_ajax_nopriv_* endpoints, where a partial payload
+	 * would otherwise make the render loop read undefined array keys and emit a
+	 * PHP warning per missing key. Values mirror the widgets' own defaults.
+	 *
+	 * @return array<string, string>
+	 */
+	protected function loadmore_display_defaults() {
+		return [
+			'show_title'          => 'yes',
+			'title_tags'          => 'h3',
+			'title_style'         => 'underline',
+			'show_author'         => 'yes',
+			'show_author_name'    => 'yes',
+			'show_author_avatar'  => 'yes',
+			'show_date'           => 'yes',
+			'show_time'           => 'no',
+			'show_category'       => 'yes',
+			'show_excerpt'        => 'yes',
+			'show_readmore'       => 'yes',
+			'readmore_type'       => '',
+			'show_comments'       => 'no',
+			'show_image'          => 'yes',
+			'show_post_format'    => 'no',
+			'show_reading_time'   => 'no',
+			'show_counter_number' => 'no',
+			'human_diff_time'     => 'no',
+			'upk_link_new_tab'    => 'no',
+			'meta_separator'      => '//',
+		];
+	}
+
+	/**
 	 * Render Ajax Qery Posts
 	 */
 	function mapGroupControlQuery($term_ids = []) {
@@ -32,8 +68,23 @@ trait Global_Widget_Functions {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in the load-more AJAX handler (check_ajax_referer 'upk-site') before this runs.
 		if ( isset( $_POST['settings'] ) && is_array( $_POST['settings'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in the load-more AJAX handler (check_ajax_referer 'upk-site') before this runs.
-			extract( map_deep( wp_unslash( $_POST['settings'] ), 'sanitize_text_field' ) );
+			$request_settings = map_deep( wp_unslash( $_POST['settings'] ), 'sanitize_text_field' );
+
+			unset( $request_settings['this'], $request_settings['GLOBALS'] );
+
+			extract( $request_settings, EXTR_SKIP );
 		}
+
+		// extract() only defines what the request actually sent, and this handler is
+		// reachable unauthenticated, so any omitted key would leave the matching
+		// variable undefined. The three below are consumed unconditionally further
+		// down (orderby/order in $args, and $posts_select_date in the date query),
+		// unlike their siblings which are isset()-guarded at the point of use.
+		// Seed them so a partial request cannot emit PHP warnings or push a null
+		// into WP_Query.
+		$posts_orderby     = isset( $posts_orderby ) ? $posts_orderby : 'date';
+		$posts_order       = isset( $posts_order ) ? $posts_order : 'DESC';
+		$posts_select_date = isset( $posts_select_date ) ? $posts_select_date : '';
 
 		// This handler is reachable unauthenticated (wp_ajax_nopriv_*). Clamp the
 		// page size to a sane positive maximum so a request cannot ask for -1
@@ -122,6 +173,8 @@ trait Global_Widget_Functions {
 
 		$exclude_by = isset($posts_exclude_by) ? $posts_exclude_by : [];
 		$include_by = isset($posts_include_by) ? $posts_include_by : [];
+		$exclude_by = is_array($exclude_by) ? $exclude_by : ( '' === $exclude_by || null === $exclude_by ? [] : [ $exclude_by ] );
+		$include_by = is_array($include_by) ? $include_by : ( '' === $include_by || null === $include_by ? [] : [ $include_by ] );
 		$include_users = [];
 		$exclude_users = [];
 		// print_r($exclude_by);
@@ -146,7 +199,17 @@ trait Global_Widget_Functions {
 			 */
 			$selected_ids = $posts_selected_ids;
 			$selected_ids = wp_parse_id_list($selected_ids);
-			$args['post_type'] = 'any';
+
+			// Both $posts_source and $posts_selected_ids arrive from $_POST on the
+			// wp_ajax_nopriv_* load-more handlers, so an anonymous caller can pick this
+			// branch and name arbitrary IDs. 'any' only filters on exclude_from_search,
+			// which is weaker than the allowlist the else branch below applies: a post
+			// type registered public => true, publicly_queryable => false is rejected by
+			// is_post_type_viewable() but still matched by 'any'. Route this branch
+			// through the same allowlist so every path out of query_args() agrees.
+			$args['post_type'] = ultimate_post_kit_sanitize_public_post_type(
+				array_values( get_post_types( [ 'public' => true, 'exclude_from_search' => false ] ) )
+			);
 			if (!empty($selected_ids)) {
 				$args['post__in'] = $selected_ids;
 			}
@@ -166,8 +229,8 @@ trait Global_Widget_Functions {
 			$args['post_type'] = get_post_type($related_post_id);
 
 			// $include_by = $this->getGroupControlQueryParamBy('include');
-			if (in_array('authors', $include_by)) {
-				$args['author__in'] = wp_parse_id_list($settings['posts_include_author_ids']);
+			if (in_array('authors', $include_by) && isset($posts_include_author_ids)) {
+				$args['author__in'] = wp_parse_id_list($posts_include_author_ids);
 			} else {
 				$args['author__in'] = get_post_field('post_author', $related_post_id);
 			}
@@ -267,6 +330,10 @@ trait Global_Widget_Functions {
 				$args['tax_query'] = $terms_query;
 				$args['tax_query']['relation'] = 'AND';
 			}
+		}
+
+		if ( empty( $args['post_status'] ) || 'publish' !== $args['post_status'] ) {
+			$args['post_status'] = 'publish';
 		}
 
 		$ajaxposts = new \WP_Query($args);
