@@ -4,12 +4,12 @@ Donate link: https://bdthemes.com/
 Tags: elementor addons, post grid, post carousel, post slider, blog layout
 Requires at least: 6.8
 Tested up to: 7.1
-Stable tag: 4.5.4
+Stable tag: 4.5.5
 Requires PHP: 7.0
 License: GPL3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Elementor requires at least: 4.0.0
-Elementor tested up to: 4.2.4
+Elementor tested up to: 4.3.1
 
 Build WordPress blog, magazine, news, archive and single-post layouts with Elementor post grid, carousel, slider and list widgets.
 
@@ -299,6 +299,7 @@ Ultimate Post Kit connects to the following external services only under the sta
 2. **Mailchimp API** - The Newsletter widget uses the site owner's configured Mailchimp account and list. A subscriber's email address and optional name are sent to Mailchimp when the visitor submits the form. Service provider: [Mailchimp Terms](https://mailchimp.com/legal/terms/) and [Intuit Privacy Statement](https://www.intuit.com/privacy/statement/).
 3. **Social share-count APIs** - When a supported share-count option is enabled, the widget requests public share counts from the relevant network for the current page URL. The page URL is sent to the selected service when the widget is rendered. Services can include Facebook, Pinterest, Buffer, Tumblr, WhatsApp and Mail.ru.
 4. **Vimeo oEmbed** (`https://vimeo.com/api/oembed.json`) - Video widgets use this service to retrieve the dimensions or thumbnail of a Vimeo video supplied by the site owner. The public Vimeo URL is sent to Vimeo when that content is rendered. Service provider: [Vimeo Terms](https://vimeo.com/legal/) and [Privacy Policy](https://vimeo.com/legal/privacy).
+5. **BdThemes newsletter** (`https://marketing.sigmative.com`) - Used only if an administrator opts in to the BdThemes newsletter on the setup wizard's welcome screen. The opt-in checkbox is unticked by default. If it is ticked when the administrator clicks "Get Started", the email address entered there, together with the first and last name from that administrator's WordPress profile, is sent to subscribe them to the newsletter. Nothing is sent when the box is left unticked. Service provider: [BdThemes Terms](https://bdthemes.com/terms-conditions/) and [Privacy Policy](https://bdthemes.com/privacy-policy/).
 
 = Source Code and Build Process =
 
@@ -310,6 +311,10 @@ The plugin is not obfuscated. Human-readable source for minified or compiled ass
 The build configuration is included in `gruntfile.js` and `package.json`. Bundled third-party libraries retain their upstream license and version comments.
 
 == Changelog ==
+
+= 4.5.5 [24th September 2026] =
+
+* Updated: System improved
 
 = 4.5.4 [13th September 2026] =
 
